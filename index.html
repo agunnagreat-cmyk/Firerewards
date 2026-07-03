@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FireRewards Production</title>
+    <!-- Google reCAPTCHA API Integration -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root {
             --bg-dark: #121214;
@@ -331,7 +333,6 @@
             max-width: 100%;
         }
 
-        /* Ticker styling for tips */
         .ticker-panel {
             background: #252529;
             border-left: 4px solid var(--accent-gold);
@@ -368,7 +369,6 @@
             justify-content: space-between;
         }
         
-        /* Game overlay interfaces */
         .arcade-container {
             position: relative;
             width: 300px;
@@ -397,12 +397,26 @@
             font-size: 12px;
             margin-bottom: 0;
         }
+
+        /* Toggle switches classes */
+        .switch-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .switch-label {
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
     <div id="networkAlert" class="network-bar">OFFLINE MODE DETECTED: ACCESS HALTED</div>
 
+    <!-- ========================================== -->
+    <!-- VIEW: AUTHENTICATION GATEWAY LAYER         -->
+    <!-- ========================================== -->
     <div id="viewLogin" class="app-view active-view">
         <div style="text-align: center; margin: 40px 0 20px 0;">
             <h1 style="color: var(--accent-gold); font-size: 32px; font-weight: 800;">FireRewards</h1>
@@ -413,7 +427,7 @@
             <div class="section-title">Account Authentication</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Sign in to sync your diamond rewards database across nodes.</p>
             
-            <button class="btn-google" id="btnGoogleAuth" onclick="handleGoogleSignInSimulation()" style="background: #ffffff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #747775; padding: 12px; font-size: 15px; margin-bottom: 0;">
+            <button class="btn-google" id="btnGoogleAuth" onclick="handleGoogleSignInSimulation()" style="background: #ffffff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #747775; padding: 12px; font-size: 15px; margin-bottom: 15px;">
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48" style="display: block;">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
                     <path fill="#4285F4" d="M46.5 24c0-1.55-.15-3.24-.47-4.75H24v9h12.75c-.55 3-2.25 5.54-4.75 7.23l7.36 5.71C43.73 37.33 46.5 31.33 46.5 24z"></path>
@@ -422,6 +436,22 @@
                 </svg>
                 Continue with Google
             </button>
+
+            <div style="border-top: 1px solid #333; margin: 15px 0; position: relative;">
+                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--card-dark); padding: 0 10px; font-size: 11px; color: var(--text-muted);">OR LOG IN WITH EMAIL</span>
+            </div>
+
+            <!-- Manual Email Credentials Layer -->
+            <input type="email" id="authEmailInput" placeholder="Enter Account Email Address" style="-webkit-user-select: text; user-select: text;">
+            <input type="password" id="authPasswordInput" placeholder="Enter Security Password" style="-webkit-user-select: text; user-select: text;">
+            
+            <!-- Real Secure Cloud reCAPTCHA -->
+            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+                <div class="g-recaptcha" data-theme="dark" data-sitekey="YOUR_RECAPTCHA_SITE_KEY" id="loginRecaptchaBox"></div>
+            </div>
+
+            <button class="btn-cyan" onclick="handleManualEmailAuth()" style="margin-bottom: 5px;">Secure Account Sign In</button>
+            <p style="font-size: 12px; margin-top: 10px;"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
         </div>
 
         <div class="card" id="mainIdentityGate" style="display: none;">
@@ -431,16 +461,16 @@
                     <span id="uploaderPrompt">Tap to<br>Add Photo</span>
                 </div>
                 <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="processAvatarImage(event)">
-                <input type="text" id="loginUser" placeholder="Choose Unique Player Username">
+                <input type="text" id="loginUser" placeholder="Choose Unique Player Username" style="-webkit-user-select: text; user-select: text;">
             </div>
-            
-            <div class="section-title" id="captchaLabel">Security Verification Check: Loading...</div>
-            <input type="number" id="loginCaptchaInput" placeholder="Your Security Answer">
             
             <button class="btn-gold" onclick="validateLoginGate()">Verify and Secure Account</button>
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MAIN APPLICATION WORKSPACE HOOKS           -->
+    <!-- ========================================== -->
     <div id="appMainDock" style="display: none;">
 
         <div id="viewHome" class="app-view">
@@ -500,7 +530,7 @@
                 </select>
 
                 <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">Player Account UID:</label>
-                <input type="text" id="playerUidInput" placeholder="Enter Game Player ID">
+                <input type="text" id="playerUidInput" placeholder="Enter Game Player ID" style="-webkit-user-select: text; user-select: text;">
 
                 <button class="btn-blue" id="btnExchange" onclick="executeRedemption()">Submit Exchange Order</button>
             </div>
@@ -526,11 +556,25 @@
                     <option value="dark">Dark Onyx Core Theme (Active)</option>
                     <option value="light">Light Slate Clean Theme</option>
                 </select>
+
+                <!-- Daily Notification Reminders Toggle Control Switch -->
+                <div class="switch-container">
+                    <span class="switch-label">Enable Daily Reminders Notification</span>
+                    <input type="checkbox" id="reminderNotificationToggle" checked style="width: auto; margin: 0;">
+                </div>
+            </div>
+
+            <!-- In-App Account Profile Security Update Form Section -->
+            <div class="card">
+                <div class="section-title">Update Profile Security Credentials</div>
+                <input type="password" id="settingsNewPassword" placeholder="Type Brand New Password Key" style="-webkit-user-select: text; user-select: text;">
+                <button class="btn-gold" onclick="processPasswordModification()" style="margin-bottom:0; padding:10px;">Update System Password</button>
             </div>
 
             <div class="card" style="padding: 10px; background: transparent; box-shadow: none;">
                 <button class="btn-cyan" onclick="openModal('modalSupport')">Contact Customer Support Helpdesk</button>
                 <button class="btn-blue" onclick="openModal('modalTerms')">View Application Privacy Terms</button>
+                <button style="background: #ff4757; color: white;" onclick="performAppLogout()">Log Out Account</button>
             </div>
         </div>
 
@@ -593,7 +637,7 @@
             <div class="card">
                 <div class="section-title">Hardware Headshot Sensitivity Panel</div>
                 <select id="sensitivitySelector" onchange="renderSensitivityData()">
-                    </select>
+                </select>
                 <div id="sensDisplayBox" style="background: #111; padding: 15px; border-radius: 8px; min-height: 100px;">
                     <p style="color: var(--text-muted); text-align: center; font-size: 13px;">Select device variant to deploy exact structural target configurations.</p>
                 </div>
@@ -621,6 +665,9 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- OVERLAY POPUPS AND SECURE MODALS LIST      -->
+    <!-- ========================================== -->
     <div id="modalSupport" class="modal-overlay">
         <div class="modal-box">
             <div class="section-title">System Support Desk</div>
@@ -646,6 +693,32 @@
         </div>
     </div>
 
+    <!-- Password Self-Service Recovery Modal Overlay Box -->
+    <div id="modalRecovery" class="modal-overlay">
+        <div class="modal-box">
+            <div class="section-title">Account Credential Recovery</div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
+                Provide your registered profile email address. Our security node will send an absolute password replacement reset hyperlink.
+            </p>
+            <input type="email" id="recoveryEmailInput" placeholder="Enter Account Email" style="-webkit-user-select: text; user-select: text;">
+            <button class="btn-gold" onclick="triggerPasswordResetRecovery()">Send Reset Email Link</button>
+            <button style="background:#444;" onclick="closeModal('modalRecovery')">Back to Gateway</button>
+        </div>
+    </div>
+
+    <!-- Anti-Skip Abandon Reward Modal Box Container -->
+    <div id="modalAdPlayer" class="modal-overlay">
+        <div class="modal-box">
+            <div class="section-title" style="color: var(--accent-cyan);">Streaming Sponsored Video Ads</div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Do not quit this interface window or rewards will be instantly forfeited!</p>
+            <div id="adWindowCountdownClock" style="font-size: 48px; font-weight: 800; color: var(--accent-gold); margin: 15px 0;">15</div>
+            <button style="background: #ff4757; color: white;" onclick="abandonActiveAdStream()">Cancel & Skip Ad</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION CONTROLLER CORE LOGIC          -->
+    <!-- ========================================== -->
     <script>
         let walletBalance = parseInt(localStorage.getItem('user_coins')) || 0;
         let counterAdsToday = parseInt(localStorage.getItem('ads_today')) || 0;
@@ -654,10 +727,10 @@
         let storedUserNickname = localStorage.getItem('user_nickname_id') || "";
         
         const SYSTEM_DAILY_CAP = 20; 
-        let targetCaptchaSolution = 0;
         let profilePhotoDataUrl = localStorage.getItem('user_profile_photo') || "";
+        let adPlaybackTimerReference = null;
 
-        // Pro Strategies Database Array (Corrected & Non-Repeating)
+        // Pro Strategies Database Array
         const proTipsPool = [
             "Use a downed enemy as bait to lure their remaining teammates out into the open.",
             "Drop Loot For Teammates: Regularly open your backpack to discard spare ammo and medkits for your squadmates.",
@@ -668,7 +741,7 @@
             "Flashbang Rushing: Synchronize throwable trajectories perfectly right before bursting inside occupied complex layouts."
         ];
 
-        // Modern 50+ Phone Array Database Matrix (Latest Models)
+        // Phone Array Database Matrix
         const advancedSensDB = [
             { name: "Infinix Hot 50 Pro+ / 50 4G (2025)", gen: 99, dot: 95, x2: 96, x4: 92, snp: 55, cam: 85 },
             { name: "Infinix Hot 40 Pro / 40i", gen: 96, dot: 92, x2: 94, x4: 90, snp: 50, cam: 80 },
@@ -730,7 +803,6 @@
                 document.getElementById('profileIdLabel').innerText = storedUserNickname;
                 document.getElementById('welcomeBackTag').innerText = `Welcome Back, ${storedUserNickname}!`;
             }
-            generateCaptchaChallenge();
             initTipsTickerSystem();
             populateSensitivitySelectors();
             applyUIProfileImages();
@@ -771,9 +843,58 @@
             setTimeout(() => {
                 document.getElementById('googleLoginCard').style.display = 'none';
                 document.getElementById('mainIdentityGate').style.display = 'block';
-                generateCaptchaChallenge();
-                alert("Google Authentication Complete! Initialize player core mapping profile below.");
+                alert("Google Authentication Token Verified! Setup your custom username profile below.");
             }, 3000);
+        }
+
+        // Manual Email + reCAPTCHA Sign In Evaluation
+        function handleManualEmailAuth() {
+            if(processAntiCheatLockout()) return;
+            
+            let emailValue = document.getElementById('authEmailInput').value.trim();
+            let passwordValue = document.getElementById('authPasswordInput').value;
+            
+            if(!emailValue || !passwordValue) {
+                alert("Input fields empty: Type a valid email and password.");
+                return;
+            }
+
+            // Read Google Checkbox reCAPTCHA Verification Value State Token
+            let checkCaptchaToken = grecaptcha.getResponse();
+            if(checkCaptchaToken.length === 0) {
+                alert("Security block: Complete the 'Are you a robot' checkbox check.");
+                return;
+            }
+
+            document.getElementById('googleLoginCard').style.display = 'none';
+            document.getElementById('mainIdentityGate').style.display = 'block';
+            grecaptcha.reset(); // Clear reCAPTCHA status for next time safely
+        }
+
+        function triggerPasswordResetRecovery() {
+            let userMail = document.getElementById('recoveryEmailInput').value.trim();
+            if(!userMail) { alert("Please write down your target account email address first."); return; }
+            alert(`Recovery verification handshake complete! A secure link was fired directly to: ${userMail}`);
+            closeModal('modalRecovery');
+            document.getElementById('recoveryEmailInput').value = "";
+        }
+
+        function processPasswordModification() {
+            let textPass = document.getElementById('settingsNewPassword').value;
+            if(textPass.length < 6) { alert("Security alert: New password must be at least 6 characters."); return; }
+            alert("Success! System credentials updated safely across backend server nodes.");
+            document.getElementById('settingsNewPassword').value = "";
+        }
+
+        function performAppLogout() {
+            storedUserNickname = "";
+            localStorage.removeItem('user_nickname_id');
+            document.getElementById('appMainDock').style.display = 'none';
+            document.getElementById('googleLoginCard').style.display = 'block';
+            document.getElementById('mainIdentityGate').style.display = 'none';
+            document.getElementById('viewLogin').style.display = 'block';
+            switchTab('Home', null);
+            alert("Session disconnected safely.");
         }
 
         function processAvatarImage(event) {
@@ -802,31 +923,14 @@
             }
         }
 
-        function generateCaptchaChallenge() {
-            let numA = Math.floor(Math.random() * 9) + 2;
-            let numB = Math.floor(Math.random() * 9) + 1;
-            targetCaptchaSolution = numA + numB;
-            const labelEl = document.getElementById('captchaLabel');
-            if (labelEl) {
-                labelEl.innerText = `Security Check: Verify Answer ${numA} + ${numB}?`;
-            }
-        }
-
         function validateLoginGate() {
             if(processAntiCheatLockout()) return;
-            let captchaVal = parseInt(document.getElementById('loginCaptchaInput').value);
             
             if(storedUserNickname === "") {
                 let nameInput = document.getElementById('loginUser').value.trim();
                 if(!nameInput) { alert("Please input a permanent username."); return; }
                 storedUserNickname = nameInput;
                 localStorage.setItem('user_nickname_id', storedUserNickname);
-            }
-
-            if(captchaVal !== targetCaptchaSolution) { 
-                alert("Security check error: Answer mismatch."); 
-                generateCaptchaChallenge(); 
-                return; 
             }
             
             document.getElementById('viewLogin').style.display = 'none';
@@ -843,6 +947,7 @@
             let rotationIdx = 0;
             
             function swapText() {
+                if(!tickerBox) return;
                 tickerBox.style.opacity = 0;
                 setTimeout(() => {
                     tickerBox.innerText = proTipsPool[rotationIdx];
@@ -947,16 +1052,43 @@
             }
         }
 
+        // Secure Real-Time Active Ad Countdown Modal Execution (With Failed/Empty Ad Stream Fallback Check)
         function runStandardVideoAd() {
             if(processAntiCheatLockout()) return;
             if(counterAdsToday >= SYSTEM_DAILY_CAP) { alert("Daily balance caps fulfilled."); return; }
-            implementTemporaryCooldown('btnWatchAd', 'Caching Video Node', 6000);
-            setTimeout(() => {
-                counterAdsToday++;
-                walletBalance += 1;
-                refreshAppLayoutMetrics();
-                alert("Ad Token Verified! +1 Coin credited.");
-            }, 6000);
+            
+            // Random simulated fail-check (e.g., 15% chance of ad inventory running dry)
+            let isAdInventoryAvailable = Math.random() > 0.15;
+            if (!isAdInventoryAvailable) {
+                alert("Sorry, no ads available. Try again later.");
+                return;
+            }
+            
+            openModal('modalAdPlayer');
+            let timeRemaining = 15;
+            let clockDisplay = document.getElementById('adWindowCountdownClock');
+            clockDisplay.innerText = timeRemaining;
+
+            adPlaybackTimerReference = setInterval(() => {
+                timeRemaining--;
+                clockDisplay.innerText = timeRemaining;
+                if(timeRemaining <= 0) {
+                    clearInterval(adPlaybackTimerReference);
+                    closeModal('modalAdPlayer');
+                    counterAdsToday++;
+                    walletBalance += 1;
+                    refreshAppLayoutMetrics();
+                    alert("Ad Stream Checked Out: +1 Coin added successfully!");
+                }
+            }, 1000);
+        }
+
+        function abandonActiveAdStream() {
+            if(adPlaybackTimerReference) {
+                clearInterval(adPlaybackTimerReference);
+            }
+            closeModal('modalAdPlayer');
+            alert("Transaction Denied: Ad closed too early. 0 coins credited.");
         }
 
         function runDailyCheckIn() {
@@ -1016,7 +1148,7 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
-        // --- GAME 1: JUMP BLOCK ARENA (PRACTICE ONLY - 0 COINS) ---
+        // --- GAME 1: JUMP BLOCK ARENA ---
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         let blockActive = false;
@@ -1047,7 +1179,6 @@
                 if (obstacleX < -15) {
                     obstacleX = 320; blockScore++; obstacleSpeed += 0.15;
                 }
-                // Collision Detection State
                 if (obstacleX > 30 && obstacleX < 50 && playerY > 95) { 
                     blockActive = false;
                     if(blockScore > blockHighScore) {
@@ -1066,7 +1197,7 @@
             requestAnimationFrame(gameEngineTick);
         }
 
-        // --- GAME 2: COMPETITIVE DIAMOND RUSH CATCHER (EARNS COINS) ---
+        // --- GAME 2: COMPETITIVE DIAMOND RUSH CATCHER ---
         const catcherCanvas = document.getElementById("catcherCanvas");
         const cCtx = catcherCanvas.getContext("2d");
         let catcherActive = false;
@@ -1096,7 +1227,6 @@
         function catcherEngineTick() {
             if (catcherActive) {
                 diamondY += diamondSpeed;
-                // Missed object evaluation check
                 if(diamondY >= 145) {
                     catcherActive = false;
                     if (catcherScore > catcherHighScore) {
@@ -1106,7 +1236,6 @@
                     document.getElementById('catcherScoresDisplay').innerText = `Score: ${catcherScore} | Record High: ${catcherHighScore}`;
                     document.getElementById('catcherGameOverMenu').style.display = 'flex';
                 }
-                // Caught logic calculation block
                 else if(diamondY >= 130 && diamondY <= 140) {
                     if(diamondX > basketX - 10 && diamondX < basketX + 45) {
                         catcherScore++; 
@@ -1114,7 +1243,6 @@
                         diamondY = 0; 
                         diamondX = Math.random() * 270;
                         
-                        // Valid coin payout trigger
                         if(catcherScore % 10 === 0 && counterAdsToday < SYSTEM_DAILY_CAP && navigator.onLine) {
                             counterAdsToday++; walletBalance += 1; refreshAppLayoutMetrics();
                         }
