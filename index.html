@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FireRewards Production Core</title>
     
-    <!-- Core Google reCAPTCHA API Script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    <!-- Firebase Legacy Compat SDK Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -27,6 +25,7 @@
             --bg-light: #f5f6fa;
             --card-light: #ffffff;
             --text-dark: #2f3640;
+            --danger-red: #ff4757;
         }
 
         * {
@@ -155,6 +154,7 @@
         .btn-gold { background: linear-gradient(135deg, #ff9f43, #ff7675); }
         .btn-cyan { background: linear-gradient(135deg, #0abde3, #00d2d3); }
         .btn-blue { background: linear-gradient(135deg, #2e86de, #48dbfb); }
+        .btn-danger { background: linear-gradient(135deg, #ff4757, #ff3344); }
 
         .balance-box {
             display: flex;
@@ -421,43 +421,39 @@
             font-size: 1.4rem;
             margin: 10px 0;
         }
+
+        .danger-zone {
+            margin-top: 24px;
+            border-top: 1px dashed var(--danger-red);
+            padding-top: 20px;
+        }
+        .danger-zone p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
 
     <div id="networkAlert" class="network-bar">OFFLINE MODE DETECTED: ACCESS HALTED</div>
 
-    <!-- MAIN ACCESS GATEWAY VIEW CONTROLLER -->
     <div id="viewLogin" class="app-view active-view">
         <div style="text-align: center; margin: 40px 0 20px 0;">
             <h1 style="color: var(--accent-gold); font-size: 32px; font-weight: 800;">FireRewards</h1>
             <p style="color: var(--text-muted); font-size: 14px;">Secure Processing System Nodes</p>
         </div>
 
-        <!-- 1. AUTH LOGIN VIEW -->
         <div class="card" id="loginCardContainer">
             <div class="section-title">Account Sign In</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Sign in to sync your diamond rewards database across nodes.</p>
-            
-            <button class="btn-google" id="btnGoogleAuth" onclick="handleGoogleSignIn()" style="background: #ffffff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #747775; padding: 12px; font-size: 15px; margin-bottom: 15px;">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48" style="display: block;">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                    <path fill="#4285F4" d="M46.5 24c0-1.55-.15-3.24-.47-4.75H24v9h12.75c-.55 3-2.25 5.54-4.75 7.23l7.36 5.71C43.73 37.33 46.5 31.33 46.5 24z"></path>
-                    <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"></path>
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.36-5.71c-2.11 1.41-4.8 2.3-8.53 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                </svg>
-                Continue with Google
-            </button>
-
-            <div style="border-top: 1px solid #333; margin: 15px 0; position: relative;">
-                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--card-dark); padding: 0 10px; font-size: 11px; color: var(--text-muted);">OR LOG IN WITH EMAIL</span>
-            </div>
 
             <input type="email" id="authEmailInput" placeholder="Enter Account Email Address" style="-webkit-user-select: text; user-select: text;">
             <input type="password" id="authPasswordInput" placeholder="Enter Security Password" style="-webkit-user-select: text; user-select: text;">
             
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <div class="g-recaptcha" data-theme="dark" data-sitekey="6LfAl0ItAAAAALWGLfnOVj47bj8Rlj-iteZ19qys" id="loginRecaptchaBox"></div>
+                <div class="g-recaptcha" data-theme="dark" data-sitekey="6LfAl0ItAAAAALWGLfnOVj47bj8Rlj-iteZ19qys" id="loginRecaptBox"></div>
             </div>
 
             <button class="btn-cyan" onclick="handleManualEmailAuth()">Secure Account Sign In</button>
@@ -468,7 +464,6 @@
             <p style="font-size: 12px; text-align: center; margin-top: 10px;"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
         </div>
 
-        <!-- 2. AUTH SIGNUP VIEW -->
         <div class="card" id="signupCardContainer" style="display: none;">
             <div class="section-title">Create New Account</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Register with a valid email to track and save your reward points status securely.</p>
@@ -488,7 +483,6 @@
             </p>
         </div>
 
-        <!-- 3. EMAIL VERIFICATION & COOLDOWN TIMER VIEW -->
         <div class="card" id="emailVerifyCardContainer" style="display: none; text-align: center;">
             <div class="section-title" style="color: var(--accent-cyan);">Verify Your Email Node</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; line-height: 1.4;">
@@ -504,7 +498,6 @@
             <button style="background: transparent; color: var(--text-muted); font-size: 12px; margin-top: 5px;" onclick="cancelVerificationFlow()">Back to Login Form</button>
         </div>
 
-        <!-- 4. ACCOUNT IDENTITY CUSTOM SETUP VIEW -->
         <div class="card" id="mainIdentityGate" style="display: none;">
             <div id="nameSetupSection">
                 <div class="section-title">Setup Permanent Identity Profile</div>
@@ -519,10 +512,8 @@
         </div>
     </div>
 
-    <!-- MAIN PROTECTED CORE PLATFORM VIEWS -->
     <div id="appMainDock" style="display: none;">
 
-        <!-- TAB CONTENT VIEW: HOME -->
         <div id="viewHome" class="app-view">
             <div class="profile-badge">
                 <div class="user-img id-avatar-display"></div>
@@ -560,13 +551,11 @@
 
             <div class="card">
                 <div class="section-title">Earning Stations</div>
-                <div class="progress-meta" style="margin-bottom: 10px;">
-                    <span>Daily Activity Limit Pool:</span>
-                    <span id="profileLimit">0 / 20</span>
-                </div>
-                
                 <button id="btnCheckIn" class="btn-gold" onclick="runDailyCheckIn()">Claim Daily Reward (+5)</button>
                 <button id="btnWatchAd" class="btn-cyan" onclick="runStandardVideoAd()">Watch Ad to Earn (+1)</button>
+                <p id="profileLimit" style="color: var(--text-muted); font-size: 0.9em; text-align: center; margin-top: 5px;">
+                    Daily Video Slots: (0/25)
+                </p>
             </div>
 
             <div class="card">
@@ -586,7 +575,6 @@
             </div>
         </div>
 
-        <!-- TAB CONTENT VIEW: HISTORY -->
         <div id="viewHistory" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">Exchange History</h2>
             <div class="card">
@@ -598,7 +586,6 @@
             </div>
         </div>
 
-        <!-- TAB CONTENT VIEW: SETTINGS -->
         <div id="viewSettings" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">System Settings</h2>
             
@@ -621,6 +608,12 @@
                 <button class="btn-gold" onclick="processPasswordModification()" style="margin-bottom:0; padding:10px;">Update System Password</button>
             </div>
 
+            <div class="card danger-zone">
+                <div class="section-title" style="color: var(--danger-red);">Administrative Danger Zone</div>
+                <p>Permanently wipe your identity entries, dynamic parameters, and account balance levels out of our server network instantly. This execution protocol is final.</p>
+                <button class="btn-danger" onclick="deleteUserAccountNode()">Purge User Account Node</button>
+            </div>
+
             <div class="card" style="padding: 10px; background: transparent; box-shadow: none;">
                 <button class="btn-cyan" onclick="openModal('modalSupport')">Contact Customer Support Helpdesk</button>
                 <button class="btn-blue" onclick="openModal('modalTerms')">View Application Privacy Terms</button>
@@ -628,7 +621,6 @@
             </div>
         </div>
 
-        <!-- TAB CONTENT VIEW: TOOLKIT -->
         <div id="viewProfile" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">Gaming Station Hub</h2>
             
@@ -695,7 +687,6 @@
             </div>
         </div>
 
-        <!-- DOCK TAB ELEMENT SELECTION PANELS -->
         <div class="navigation-dock">
             <div class="nav-tab active-tab" onclick="switchTab('Home', this)">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -717,7 +708,6 @@
 
     </div>
 
-    <!-- UTILITY SYSTEMS POPUP OVERLAYS MODALS -->
     <div id="modalSupport" class="modal-overlay">
         <div class="modal-box">
             <div class="section-title">System Support Desk</div>
@@ -788,7 +778,8 @@
         let transactionHistoryList = [];
         let storedUserNickname = "";
         
-        const SYSTEM_DAILY_CAP = 20; 
+        // Unified Application Cap Threshold Limit Metric Definition
+        const SYSTEM_DAILY_CAP = 25; 
         let profilePhotoDataUrl = localStorage.getItem('user_profile_photo') || "";
         let adPlaybackTimerReference = null;
         let countdownTimerReference;
@@ -841,7 +832,7 @@
             { name: "Realme GT 6 / GT 6T (2024)", gen: 100, dot: 96, x2: 97, x4: 93, snp: 45, cam: 88 },
             { name: "Realme 13 Pro+ / 13 Pro 5G", gen: 99, dot: 94, x2: 95, x4: 91, snp: 48, cam: 85 },
             { name: "Realme 12 Pro+ / 12 5G", gen: 98, dot: 93, x2: 94, x4: 90, snp: 50, cam: 83 },
-            { name: "Realme C67 5G / C65", gen: 95, dot: 91, x2: 92, x4: 88, snp: 55, cam: 80 },
+            { name: "Realme C67 5G / C65", gen: 95, dot: 91, x2: 92, x4: 87, snp: 55, cam: 80 },
             { name: "OnePlus 13 / 13R (2025)", gen: 93, dot: 88, x2: 90, x4: 85, snp: 38, cam: 72 },
             { name: "OnePlus 12 / 12R 5G", gen: 94, dot: 89, x2: 91, x4: 86, snp: 40, cam: 75 },
             { name: "OnePlus Nord 4 / Nord CE4", gen: 97, dot: 93, x2: 94, x4: 89, snp: 48, cam: 82 },
@@ -871,12 +862,17 @@
                 const userRef = database.ref('users/' + user.uid);
                 userRef.once('value', (snapshot) => {
                     const data = snapshot.val();
+                    const todayStr = new Date().toISOString().split('T')[0];
+
                     if (data) {
                         walletBalance = data.coins || 0;
-                        counterAdsToday = data.adsToday || 0;
                         lastLoggedCheckIn = data.lastCheckInDate || "";
                         transactionHistoryList = data.txHistory || [];
                         storedUserNickname = data.nickname || "";
+                        
+                        // Parse Calendar-Based Day Reset Counter logic updates
+                        const adData = data.adWatchData || {};
+                        counterAdsToday = (adData.lastWatchedDate === todayStr) ? (adData.count || 0) : 0;
                         
                         if (storedUserNickname === "") {
                             document.getElementById('viewLogin').style.display = 'block';
@@ -886,14 +882,19 @@
                             launchMainCoreApplication();
                         }
                     } else {
+                        // Genesis dynamic object initialisation node mapper layout
                         database.ref('users/' + user.uid).set({
                             email: user.email,
                             coins: 100,
-                            adsToday: 0,
+                            adWatchData: {
+                                lastWatchedDate: todayStr,
+                                count: 0
+                            },
                             lastCheckInDate: "",
                             txHistory: [],
                             nickname: ""
                         });
+                        counterAdsToday = 0;
                         toggleAuthForms('identity');
                     }
                 });
@@ -954,13 +955,6 @@
             globalTapLockActive = true;
             setTimeout(() => { globalTapLockActive = false; }, 900);
             return false;
-        }
-
-        function handleGoogleSignIn() {
-            if(processAntiCheatLockout()) return;
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .catch((error) => alert("Google Failure: " + error.message));
         }
 
         function handleManualEmailAuth() {
@@ -1128,15 +1122,19 @@
             const user = auth.currentUser;
             database.ref('users/' + user.uid).on('value', (snapshot) => {
                 const data = snapshot.val();
+                const todayStr = new Date().toISOString().split('T')[0];
+
                 if (data) {
                     walletBalance = data.coins || 0;
-                    counterAdsToday = data.adsToday || 0;
                     lastLoggedCheckIn = data.lastCheckInDate || "";
                     transactionHistoryList = data.txHistory || [];
                     
+                    const adData = data.adWatchData || {};
+                    counterAdsToday = (adData.lastWatchedDate === todayStr) ? (adData.count || 0) : 0;
+                    
                     document.getElementById('homeCoins').innerText = `${walletBalance} COINS`;
                     document.getElementById('targetProgress').innerText = `${walletBalance} / 200 Coins`;
-                    document.getElementById('profileLimit').innerText = `${counterAdsToday} / ${SYSTEM_DAILY_CAP}`;
+                    document.getElementById('profileLimit').innerText = `Daily Video Slots: (${counterAdsToday} / ${SYSTEM_DAILY_CAP})`;
                     
                     let percentageRatio = (walletBalance / 200) * 100;
                     document.getElementById('progressBar').style.width = `${Math.min(percentageRatio, 100)}%`;
@@ -1149,10 +1147,14 @@
 
         function syncDataToFirebase() {
             const user = auth.currentUser;
+            const todayStr = new Date().toISOString().split('T')[0];
             if (user) {
                 database.ref('users/' + user.uid).update({
                     coins: walletBalance,
-                    adsToday: counterAdsToday,
+                    adWatchData: {
+                        lastWatchedDate: todayStr,
+                        count: counterAdsToday
+                    },
                     lastCheckInDate: lastLoggedCheckIn,
                     txHistory: transactionHistoryList
                 });
@@ -1257,7 +1259,13 @@
 
         function runStandardVideoAd() {
             if(processAntiCheatLockout()) return;
-            if(counterAdsToday >= SYSTEM_DAILY_CAP) { alert("Daily balance caps fulfilled."); return; }
+            
+            // Validate date states to prevent limit leaks across manual shifts
+            const todayStr = new Date().toISOString().split('T')[0];
+            if(counterAdsToday >= SYSTEM_DAILY_CAP) { 
+                alert(`Daily threshold reached (${SYSTEM_DAILY_CAP}/${SYSTEM_DAILY_CAP}). Slots reset tomorrow.`); 
+                return; 
+            }
             
             let isAdInventoryAvailable = Math.random() > 0.15;
             if (!isAdInventoryAvailable) {
@@ -1299,7 +1307,6 @@
             implementTemporaryCooldown('btnCheckIn', 'Validating Streak Logs', 4000);
             setTimeout(() => {
                 lastLoggedCheckIn = currentCalendarDate;
-                counterAdsToday++;
                 walletBalance += 5;
                 syncDataToFirebase();
                 alert("Daily Check-In Saved! +5 Coins added.");
@@ -1329,6 +1336,43 @@
                 let emailBodyText = encodeURIComponent(`Player Nickname: ${storedUserNickname}\nPlayer UID: ${targetUid}\nPackage Selection: ${gemCountTier} Free Fire Diamonds\nRequest Date: ${dateStrToday}\nStatus: Pending Hold Queue`);
                 window.location.href = `mailto:${adminTargetEmail}?subject=${emailSubjectLine}&body=${emailBodyText}`;
             }, 5000);
+        }
+
+        // Administrative Account Purging System Core Engine
+        function deleteUserAccountNode() {
+            const user = auth.currentUser;
+            if (!user) return alert("Authorization context error: No active session found.");
+
+            const doubleCheck = confirm("DANGER: Wiping this node clears your coin balances and profile forever. Proceed?");
+            if (!doubleCheck) return;
+
+            const accountPassword = prompt("For safety validation, confirm your account password:");
+            if (!accountPassword) return;
+
+            // Re-authenticate prior to executing critical delete blocks matching token requirement
+            const credential = firebase.auth.EmailAuthProvider.credential(user.email, accountPassword);
+
+            user.reauthenticateWithCredential(credential).then(() => {
+                console.log("Purging all database records tied to UID:", user.uid);
+                
+                // Step A: Terminate structural user environment database keys path
+                database.ref('users/' + user.uid).remove().then(() => {
+                    
+                    // Step B: Wipe the central authentication credentials record
+                    user.delete().then(() => {
+                        alert("Account structure successfully scrubbed.");
+                        window.location.reload();
+                    }).catch(err => alert(`Auth Deletion Protocol Failed: ${err.message}`));
+                    
+                }).catch(err => alert(`Database Purge Protocol Failed: ${err.message}`));
+                
+            }).catch(error => {
+                if (error.code === 'auth/wrong-password') {
+                    alert("Security failure: Provided password string invalid.");
+                } else {
+                    alert(`Termination protocol rejected: ${error.message}`);
+                }
+            });
         }
 
         function dispatchSupportEmail() {
@@ -1444,6 +1488,7 @@
                         diamondY = 0; 
                         diamondX = Math.random() * 270;
                         
+                        // Practice Station logic handles coin limits accurately
                         if(catcherScore % 10 === 0 && counterAdsToday < SYSTEM_DAILY_CAP && navigator.onLine) {
                             counterAdsToday++; walletBalance += 1; 
                             syncDataToFirebase();
