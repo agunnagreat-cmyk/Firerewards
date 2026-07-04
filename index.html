@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireRewards Production</title>
+    <title>FireRewards Production Core</title>
     
+    <!-- Core Google reCAPTCHA API Script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+    <!-- Firebase Legacy Compat SDK Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -425,12 +427,14 @@
 
     <div id="networkAlert" class="network-bar">OFFLINE MODE DETECTED: ACCESS HALTED</div>
 
+    <!-- MAIN ACCESS GATEWAY VIEW CONTROLLER -->
     <div id="viewLogin" class="app-view active-view">
         <div style="text-align: center; margin: 40px 0 20px 0;">
             <h1 style="color: var(--accent-gold); font-size: 32px; font-weight: 800;">FireRewards</h1>
             <p style="color: var(--text-muted); font-size: 14px;">Secure Processing System Nodes</p>
         </div>
 
+        <!-- 1. AUTH LOGIN VIEW -->
         <div class="card" id="loginCardContainer">
             <div class="section-title">Account Sign In</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Sign in to sync your diamond rewards database across nodes.</p>
@@ -464,6 +468,7 @@
             <p style="font-size: 12px; text-align: center; margin-top: 10px;"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
         </div>
 
+        <!-- 2. AUTH SIGNUP VIEW -->
         <div class="card" id="signupCardContainer" style="display: none;">
             <div class="section-title">Create New Account</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Register with a valid email to track and save your reward points status securely.</p>
@@ -483,6 +488,7 @@
             </p>
         </div>
 
+        <!-- 3. EMAIL VERIFICATION & COOLDOWN TIMER VIEW -->
         <div class="card" id="emailVerifyCardContainer" style="display: none; text-align: center;">
             <div class="section-title" style="color: var(--accent-cyan);">Verify Your Email Node</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; line-height: 1.4;">
@@ -498,6 +504,7 @@
             <button style="background: transparent; color: var(--text-muted); font-size: 12px; margin-top: 5px;" onclick="cancelVerificationFlow()">Back to Login Form</button>
         </div>
 
+        <!-- 4. ACCOUNT IDENTITY CUSTOM SETUP VIEW -->
         <div class="card" id="mainIdentityGate" style="display: none;">
             <div id="nameSetupSection">
                 <div class="section-title">Setup Permanent Identity Profile</div>
@@ -512,8 +519,10 @@
         </div>
     </div>
 
+    <!-- MAIN PROTECTED CORE PLATFORM VIEWS -->
     <div id="appMainDock" style="display: none;">
 
+        <!-- TAB CONTENT VIEW: HOME -->
         <div id="viewHome" class="app-view">
             <div class="profile-badge">
                 <div class="user-img id-avatar-display"></div>
@@ -577,6 +586,7 @@
             </div>
         </div>
 
+        <!-- TAB CONTENT VIEW: HISTORY -->
         <div id="viewHistory" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">Exchange History</h2>
             <div class="card">
@@ -588,6 +598,7 @@
             </div>
         </div>
 
+        <!-- TAB CONTENT VIEW: SETTINGS -->
         <div id="viewSettings" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">System Settings</h2>
             
@@ -617,6 +628,7 @@
             </div>
         </div>
 
+        <!-- TAB CONTENT VIEW: TOOLKIT -->
         <div id="viewProfile" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">Gaming Station Hub</h2>
             
@@ -683,6 +695,7 @@
             </div>
         </div>
 
+        <!-- DOCK TAB ELEMENT SELECTION PANELS -->
         <div class="navigation-dock">
             <div class="nav-tab active-tab" onclick="switchTab('Home', this)">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -704,6 +717,7 @@
 
     </div>
 
+    <!-- UTILITY SYSTEMS POPUP OVERLAYS MODALS -->
     <div id="modalSupport" class="modal-overlay">
         <div class="modal-box">
             <div class="section-title">System Support Desk</div>
@@ -723,7 +737,7 @@
             <div style="text-align:left; font-size:12px; color:var(--text-muted); max-height:220px; overflow-y:auto; margin-bottom:15px; padding-right:5px; line-height: 1.6;">
                 <p>1. Anti-Cheat Protocol: Intercept wrappers, speed-clickers, and hardware macros invalidate accounts permanently.</p><br>
                 <p>2. Dispatched Payout Timeframes: Points conversions are managed under verification channels. Standard distributions map directly to a full 10-day pending window clearance layout.</p><br>
-                <p>3. Procurement Transparency: Virtual assets distributed through terminal orders are fully sourced from legitimate developer funds via verified **Carry1st Shop** premium pathways.</p>
+                <p>3. Procurement Transparency: Virtual assets distributed through terminal orders are fully sourced from legitimate developer funds via verified pathways.</p>
             </div>
             <button class="btn-blue" onclick="closeModal('modalTerms')">Acknowledge</button>
         </div>
@@ -817,7 +831,7 @@
             { name: "Xiaomi Poco F6 Pro / F6 5G", gen: 100, dot: 96, x2: 97, x4: 93, snp: 45, cam: 87 },
             { name: "Xiaomi Poco X6 Pro / X6 5G", gen: 99, dot: 95, x2: 96, x4: 92, snp: 48, cam: 85 },
             { name: "Oppo Find X8 Pro / Ultra (2025)", gen: 96, dot: 91, x2: 93, x4: 88, snp: 42, cam: 75 },
-            { name: "Oppo Reno 13 Pro / 13 5G", gen: 98, dot: 93, x2: 94, x4: 90, snp: 48, cam: 82 },
+            { name: "Oppo Reno 13 Pro / 13 5G", gen: 18, dot: 93, x2: 94, x4: 90, snp: 48, cam: 82 },
             { name: "Oppo Reno 12 Pro / 12 5G", gen: 97, dot: 92, x2: 93, x4: 89, snp: 50, cam: 80 },
             { name: "Oppo A3 Pro / A79 5G", gen: 95, dot: 91, x2: 92, x4: 87, snp: 55, cam: 83 },
             { name: "Vivo X100 Pro / X100 Ultra", gen: 94, dot: 90, x2: 92, x4: 87, snp: 40, cam: 74 },
@@ -872,7 +886,6 @@
                             launchMainCoreApplication();
                         }
                     } else {
-                        // Safe Fallback initialization rules
                         database.ref('users/' + user.uid).set({
                             email: user.email,
                             coins: 100,
@@ -943,7 +956,6 @@
             return false;
         }
 
-        // Live Real-Time Integration Sign In Mechanics
         function handleGoogleSignIn() {
             if(processAntiCheatLockout()) return;
             const provider = new firebase.auth.GoogleAuthProvider();
@@ -1000,7 +1012,6 @@
                 .catch((error) => alert("Registration Failed: " + error.message));
         }
 
-        // Dedicated Mail Link Resend Protocol Function with Countdown Core Display
         function sendVerificationAndRunTimer() {
             if (!pendingUserInstance) return;
 
@@ -1114,7 +1125,6 @@
             document.getElementById('profileIdLabel').innerText = storedUserNickname;
             document.getElementById('welcomeBackTag').innerText = `Welcome Back, ${storedUserNickname}!`;
             
-            // Setup real-time listener synchronization
             const user = auth.currentUser;
             database.ref('users/' + user.uid).on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -1388,7 +1398,7 @@
             requestAnimationFrame(gameEngineTick);
         }
 
-        // --- GAME 2: COMPETITIVE DIAMOND RUSH CATCHER ---
+        // --- GAME 2: DIAMOND RUSH CATCHER ---
         const catcherCanvas = document.getElementById("catcherCanvas");
         const cCtx = catcherCanvas.getContext("2d");
         let catcherActive = false;
