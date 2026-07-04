@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FireRewards Production</title>
     
+    <!-- Core Google reCAPTCHA API Script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+    <!-- Firebase Legacy Compat SDK Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -20,6 +22,8 @@
             --accent-blue: #0abde3;
             --text-light: #ffffff;
             --text-muted: #aaaaaa;
+            --neon-glow: 0 0 15px rgba(0, 210, 211, 0.4);
+            --gold-glow: 0 0 15px rgba(255, 159, 67, 0.4);
         }
 
         body {
@@ -48,10 +52,11 @@
 
         .header h1 {
             color: var(--accent-gold);
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             margin: 0;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: var(--gold-glow);
         }
 
         .header p {
@@ -64,12 +69,13 @@
             background-color: var(--card-dark);
             border-radius: 16px;
             padding: 28px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+            border: 1px solid #25252b;
         }
 
         h2 {
             color: var(--accent-gold);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             margin-top: 0;
             margin-bottom: 8px;
@@ -167,7 +173,12 @@
             font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 210, 211, 0.3);
+            box-shadow: var(--neon-glow);
+            transition: transform 0.1s;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
         }
 
         .footer-links {
@@ -193,7 +204,7 @@
             font-size: 0.8rem;
         }
 
-        /* Original Game Rewards UI Element Styles */
+        /* Dashboard Specific Custom Design Overhaul */
         .game-stats-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -204,9 +215,10 @@
         .stat-card {
             background-color: #222227;
             border: 1px solid #2d2d34;
-            padding: 14px;
+            padding: 16px;
             border-radius: 12px;
             text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .stat-label {
@@ -214,18 +226,20 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             letter-spacing: 0.5px;
         }
 
         .stat-val {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--accent-cyan);
+            text-shadow: var(--neon-glow);
         }
 
         .stat-val.diamonds {
             color: var(--accent-gold);
+            text-shadow: var(--gold-glow);
         }
 
         .action-zone {
@@ -242,17 +256,35 @@
             background-color: #2d2d34;
             color: var(--text-light);
             border: 1px solid #3d3d44;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             margin-top: 10px;
             transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
 
-        .btn-action:hover {
+        .btn-action:hover:not(:disabled) {
             border-color: var(--accent-cyan);
             background-color: #222227;
+        }
+
+        .btn-action:disabled {
+            background-color: #16161a;
+            color: #555555;
+            border-color: #222227;
+            cursor: not-allowed;
+        }
+
+        /* Verification Screen Timer Styles */
+        .timer-text {
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -264,6 +296,7 @@
             <p>Secure Processing System Nodes</p>
         </div>
 
+        <!-- 1. LOGIN CARD WRAPPER -->
         <div class="card" id="loginCard">
             <h2>Account Authentication</h2>
             <div class="subtitle">Sign in to sync your diamond rewards database across nodes.</div>
@@ -297,6 +330,7 @@
             </div>
         </div>
 
+        <!-- 2. REGISTRATION CARD WRAPPER -->
         <div class="card" id="registerCard" style="display: none;">
             <h2>Create Account</h2>
             <div class="subtitle">Register a security profile node to begin collecting rewards.</div>
@@ -322,10 +356,26 @@
             </div>
         </div>
 
+        <!-- 3. VERIFICATION TIMEOUT AND PENDING SCREEN -->
+        <div class="card" id="verificationCard" style="display: none; text-align: center;">
+            <h2>Verify Your Email</h2>
+            <div class="subtitle">We sent a activation link to your inbox. You must verify it before accessing the mining system core.</div>
+            
+            <div class="action-zone" style="background-color: #222227;">
+                <div id="verificationStatusText" style="color: var(--accent-gold); font-weight: 600; font-size: 0.9rem;">Awaiting Link Activation...</div>
+                <div class="timer-text" id="cooldownTimerDisplay">60s</div>
+            </div>
+
+            <button class="btn-action" id="resendEmailBtn" disabled style="background-color: var(--accent-blue); color: #fff; border: none;">Resend Verification Link</button>
+            <button class="btn-action" id="backToLoginFromVerify" style="margin-top: 12px;">Back to Login Form</button>
+        </div>
+
+        <!-- 4. MAIN USER REWARDS DASHBOARD CARD -->
         <div class="card" id="dashboardCard" style="display: none;">
             <h2>FireRewards Dashboard</h2>
             <div class="subtitle" id="userGreeting">Connecting to user context stream...</div>
 
+            <!-- Balanced Grid Layout -->
             <div class="game-stats-container">
                 <div class="stat-card">
                     <span class="stat-label">Gold Coins</span>
@@ -337,13 +387,18 @@
                 </div>
             </div>
 
+            <!-- Interactive Zone Layout -->
             <div class="action-zone">
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Task Platform Access Matrix</div>
-                <button class="btn-action" onclick="alert('AdMob Reward Intent Frame Placeholder Triggered')">Watch Ads for Coins</button>
-                <button class="btn-action" onclick="alert('Diamond Exchange Matrix Opened')">Redeem Free Fire Diamonds</button>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Rewards Extraction Core</div>
+                
+                <!-- Anti-Cheat Tap Feature Button -->
+                <button class="btn-action" id="miningTapBtn" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">Tap To Extract +10 Gold</button>
+                
+                <button class="btn-action" style="margin-top: 12px;" onclick="alert('AdMob Context Integration Active.')">Watch Video Ads</button>
+                <button class="btn-action" onclick="alert('Diamond Store Core Node Target Layer Active.')">Convert Coins to Diamonds</button>
             </div>
 
-            <button class="btn-submit" id="signOutBtn" style="background: #ff4d4d; box-shadow: 0 4px 12px rgba(255,77,77,0.3);">Disconnect Secure Node</button>
+            <button class="btn-submit" id="signOutBtn" style="background: linear-gradient(90deg, #ff4d4d 0%, #ff3333 100%); box-shadow: 0 4px 12px rgba(255,77,77,0.3);">Disconnect Secure Node</button>
         </div>
     </div>
 
@@ -368,7 +423,12 @@
         // Structural UI Elements
         const loginCard = document.getElementById("loginCard");
         const registerCard = document.getElementById("registerCard");
+        const verificationCard = document.getElementById("verificationCard");
         const dashboardCard = document.getElementById("dashboardCard");
+
+        // Global Cooldown Tracking Variable Strings
+        let countdownTimer;
+        let pendingUserInstance = null;
 
         // UI View Swapping Listeners
         document.getElementById("goToRegister").addEventListener("click", () => {
@@ -381,7 +441,14 @@
             loginCard.style.display = "block";
         });
 
-        // 1. REGISTRATION LOGIC WITH EMAIL VERIFICATION FORCED
+        document.getElementById("backToLoginFromVerify").addEventListener("click", () => {
+            clearInterval(countdownTimer);
+            auth.signOut();
+            verificationCard.style.display = "none";
+            loginCard.style.display = "block";
+        });
+
+        // 1. REGISTRATION LOGIC WITH REDIRECT TO PENDING SCREEN
         function handleRegisterSubmit(event) {
             event.preventDefault();
 
@@ -396,31 +463,60 @@
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    const user = userCredential.user;
-
-                    // Send the safety verification link straight to their mail provider
-                    user.sendEmailVerification()
-                        .then(() => {
-                            alert("Registration Node Created! Verification email has been sent to " + email + ". Please confirm your email address before attempting to sign in.");
-                        });
+                    pendingUserInstance = userCredential.user;
                     
-                    // Allocate balance variables directly in Realtime Database node
-                    database.ref('users/' + user.uid).set({
+                    // Immediately allocate tracking data elements
+                    database.ref('users/' + pendingUserInstance.uid).set({
                         email: email,
-                        coins: 100, // starting gift coins
+                        coins: 100,
                         diamonds: 0,
                         createdAt: new Date().toISOString()
-                    }).then(() => {
-                        // Wipe forms and switch back to verification processing screen
-                        document.getElementById("registerForm").reset();
-                        registerCard.style.display = "none";
-                        loginCard.style.display = "block";
                     });
+
+                    // Trigger link system
+                    sendVerificationAndRunTimer();
                 })
                 .catch((error) => {
                     alert("Registration Failed: " + error.message);
                 });
         }
+
+        // TIMER & EMAIL RESEND PROTOCOL
+        function sendVerificationAndRunTimer() {
+            if (!pendingUserInstance) return;
+
+            pendingUserInstance.sendEmailVerification()
+                .then(() => {
+                    // Update interface views
+                    loginCard.style.display = "none";
+                    registerCard.style.display = "none";
+                    verificationCard.style.display = "block";
+                    
+                    const resendBtn = document.getElementById("resendEmailBtn");
+                    const display = document.getElementById("cooldownTimerDisplay");
+                    
+                    resendBtn.disabled = true;
+                    let timeLeft = 60;
+                    display.innerText = timeLeft + "s";
+
+                    clearInterval(countdownTimer);
+                    countdownTimer = setInterval(() => {
+                        timeLeft--;
+                        display.innerText = timeLeft + "s";
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(countdownTimer);
+                            resendBtn.disabled = false;
+                            display.innerText = "Ready";
+                        }
+                    }, 1000);
+                })
+                .catch(err => alert("Link Error: " + err.message));
+        }
+
+        document.getElementById("resendEmailBtn").addEventListener("click", () => {
+            sendVerificationAndRunTimer();
+        });
 
         // 2. SIGN IN LOGIC BLOCK WITH VALIDATION GATEKEEPING
         function handleAuthSubmit(event) {
@@ -439,14 +535,13 @@
                 .then((userCredential) => {
                     const user = userCredential.user;
 
-                    // Security check: Reject entry if the verification link hasn't been handled yet
+                    // Security check: Send to verification window if they haven't verified yet
                     if (!user.emailVerified) {
-                        alert("Access Suspended: Your email address is unverified. Please check your inbox or spam directory for the verification link.");
-                        auth.signOut(); // Kick out unverified accounts
+                        pendingUserInstance = user;
+                        sendVerificationAndRunTimer();
                         return;
                     }
 
-                    alert("Sign In Successful! Welcome to FireRewards.");
                     loadDashboardView(user);
                 })
                 .catch((error) => {
@@ -458,12 +553,10 @@
         document.getElementById("googleSignInBtn").addEventListener("click", () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             
-            // Runs authentication protocols directly on top of mobile viewports
             auth.signInWithPopup(provider)
                 .then((result) => {
                     const user = result.user;
                     
-                    // Since Google accounts are pre-verified through Google, check/add database tracking entry immediately
                     database.ref('users/' + user.uid).once('value', (snapshot) => {
                         if (!snapshot.exists()) {
                             database.ref('users/' + user.uid).set({
@@ -475,7 +568,6 @@
                         }
                     });
 
-                    alert("Google Sign In Successful!");
                     loadDashboardView(user);
                 })
                 .catch((error) => {
@@ -487,28 +579,54 @@
         function loadDashboardView(user) {
             loginCard.style.display = "none";
             registerCard.style.display = "none";
+            verificationCard.style.display = "none";
             dashboardCard.style.display = "block";
             
             document.getElementById("userGreeting").innerText = "Active Account: " + user.email;
 
-            // Stream realtime user database nodes down onto screen selectors
-            database.ref('users/' + user.uid).on('value', (snapshot) => {
+            // Stream user database nodes down to screen
+            const userRef = database.ref('users/' + user.uid);
+            userRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     document.getElementById("coinDisplay").innerText = data.coins || 0;
                     document.getElementById("diamondDisplay").innerText = data.diamonds || 0;
                 }
             });
+
+            // Anti-Cheat Mining Button Action Configuration Setup
+            const miningBtn = document.getElementById("miningTapBtn");
+            miningBtn.onclick = () => {
+                miningBtn.disabled = true;
+                
+                // Read current values, increment locally, push up to safety node structures
+                userRef.once('value').then(snap => {
+                    let currentCoins = snap.val().coins || 0;
+                    userRef.update({ coins: currentCoins + 10 });
+                });
+
+                // 3 Second Anti-Macro Tapping Cooldown Implementation Guard
+                let tapCool = 3;
+                miningBtn.innerText = "Cooling Down (" + tapCool + "s)";
+                let tapInt = setInterval(() => {
+                    tapCool--;
+                    miningBtn.innerText = "Cooling Down (" + tapCool + "s)";
+                    if(tapCool <= 0){
+                        clearInterval(tapInt);
+                        miningBtn.disabled = false;
+                        miningBtn.innerText = "Tap To Extract +10 Gold";
+                    }
+                }, 1000);
+            };
         }
 
         // DISCONNECT NODE MECHANICS
         document.getElementById("signOutBtn").addEventListener("click", () => {
             auth.signOut().then(() => {
-                alert("Secure Node Disconnected.");
                 dashboardCard.style.display = "none";
                 loginCard.style.display = "block";
                 document.getElementById("authForm").reset();
-                grecaptcha.reset(); // clear captcha box state
+                grecaptcha.reset(); 
             });
         });
 
