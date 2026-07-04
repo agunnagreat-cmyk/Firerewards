@@ -20,10 +20,6 @@
             --accent-blue: #0abde3;
             --text-light: #ffffff;
             --text-muted: #aaaaaa;
-
-            /* Light Theme Overrides */
-            --bg-light: #f5f6fa;
-            --card-light: #ffffff;
         }
 
         body {
@@ -189,6 +185,7 @@
             color: var(--accent-cyan);
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .footer-links a.forgot-link {
@@ -205,7 +202,7 @@
             <p>Secure Processing System Nodes</p>
         </div>
 
-        <div class="card">
+        <div class="card" id="loginCard">
             <h2>Account Authentication</h2>
             <div class="subtitle">Sign in to sync your diamond rewards database across nodes.</div>
 
@@ -233,14 +230,39 @@
             </form>
 
             <div class="footer-links">
-                <p>Don't have an account? <a href="#" id="registerLink">Register Here</a></p>
-                <p><a href="#" id="forgotPasswordLink" class="forgot-link">Forgot Password Details?</a></p>
+                <p>Don't have an account? <a id="goToRegister">Register Here</a></p>
+                <p><a id="forgotPasswordLink" class="forgot-link">Forgot Password Details?</a></p>
+            </div>
+        </div>
+
+        <div class="card" id="registerCard" style="display: none;">
+            <h2>Create Account</h2>
+            <div class="subtitle">Register a security profile node to begin collecting rewards.</div>
+
+            <form id="registerForm" onsubmit="handleRegisterSubmit(event)">
+                <div class="form-group">
+                    <input type="email" id="regEmailField" class="form-control" placeholder="Choose Account Email Address" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" id="regPasswordField" class="form-control" placeholder="Create Security Password (min 6 chars)" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" id="regConfirmPasswordField" class="form-control" placeholder="Confirm Security Password" required>
+                </div>
+
+                <button type="submit" class="btn-submit">Register Secure Node</button>
+            </form>
+
+            <div class="footer-links">
+                <p>Already have an account? <a id="goToLogin">Sign In Here</a></p>
             </div>
         </div>
     </div>
 
     <script>
-        // Your Verified Project Configuration
+        // Project Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDF61B5P2hgM3a5PyX0BHrTgGHs-sgAfV0",
             authDomain: "firerewards-c5438.firebaseapp.com",
@@ -257,49 +279,100 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // Form Submission Logic Handler
+        // Screen Toggling Mechanics
+        const loginCard = document.getElementById("loginCard");
+        const registerCard = document.getElementById("registerCard");
+
+        document.getElementById("goToRegister").addEventListener("click", () => {
+            loginCard.style.display = "none";
+            registerCard.style.display = "block";
+        });
+
+        document.getElementById("goToLogin").addEventListener("click", () => {
+            registerCard.style.display = "none";
+            loginCard.style.display = "block";
+        });
+
+        // Registration Logic Handler
+        function handleRegisterSubmit(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("regEmailField").value;
+            const password = document.getElementById("regPasswordField").value;
+            const confirmPassword = document.getElementById("regConfirmPasswordField").value;
+
+            if (password !== confirmPassword) {
+                alert("Configuration Error: Passwords do not match.");
+                return;
+            }
+
+            // Create user profile on Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    alert("Registration Successful! Secure profile allocated.");
+                    
+                    // Create an initial entry for their coin/diamond balances in the Realtime Database
+                    database.ref('users/' + user.uid).set({
+                        email: email,
+                        coins: 0,
+                        diamonds: 0,
+                        createdAt: new Date().toISOString()
+                    }).then(() => {
+                        // Switch back to login page automatically
+                        registerCard.style.display = "none";
+                        loginCard.style.display = "block";
+                    });
+                })
+                .catch((error) => {
+                    alert("Registration Failed: " + error.message);
+                });
+        }
+
+        // Sign-In Logic Handler
         function handleAuthSubmit(event) {
             event.preventDefault();
 
-            // 1. Intercept form and check for passing reCAPTCHA response token
             const userCaptchaResponse = grecaptcha.getResponse();
-
             if (userCaptchaResponse.length === 0) {
                 alert("Security Verification Required: Please complete the reCAPTCHA verification step.");
                 return;
             }
 
-            // 2. Extract values from input fields
             const email = document.getElementById("emailField").value;
             const password = document.getElementById("passwordField").value;
 
-            // 3. Attempt Sign-In via Firebase Auth Engine
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    alert("Sign In Successful! Node validation cleared.");
-                    console.log("Logged user inside structural node mappings:", user.uid);
+                    alert("Sign In Successful! Welcome to FireRewards.");
+                    console.log("Logged user UID:", user.uid);
                     
-                    // Destination application routing goes here next
+                    // This is where you will route them to your dashboard view later!
                 })
                 .catch((error) => {
                     alert("Authentication Failure: " + error.message);
                 });
         }
 
-        // Placeholder Click Alerts for Navigation Elements
+        // Temporary Placeholders
         document.getElementById("googleSignInBtn").addEventListener("click", () => {
-            alert("Google Sign-In module connection placeholder triggered.");
+            alert("Google Sign-In integration framework placeholder triggered.");
         });
 
-        document.getElementById("registerLink").addEventListener("click", (e) => {
-            e.preventDefault();
-            alert("Registration window setup placeholder triggered.");
-        });
-
-        document.getElementById("forgotPasswordLink").addEventListener("click", (e) => {
-            e.preventDefault();
-            alert("Password recovery utility placeholder triggered.");
+        document.getElementById("forgotPasswordLink").addEventListener("click", () => {
+            const email = document.getElementById("emailField").value;
+            if (!email) {
+                alert("Please type your email address into the input field above first.");
+                return;
+            }
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    alert("Password reset email sent successfully! Check your inbox.");
+                })
+                .catch((error) => {
+                    alert("Reset Failed: " + error.message);
+                });
         });
     </script>
 
