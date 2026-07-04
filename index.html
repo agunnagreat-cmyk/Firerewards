@@ -192,6 +192,21 @@
             color: var(--accent-gold);
             font-size: 0.8rem;
         }
+
+        /* Balance Display Layout styles */
+        .balance-box {
+            background-color: #222227;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #2d2d34;
+        }
+        .balance-label { font-weight: 600; color: var(--text-muted); }
+        .balance-value { font-weight: 700; color: var(--accent-cyan); font-size: 1.2rem; }
+        .balance-value.diamonds { color: var(--accent-gold); }
     </style>
 </head>
 <body>
@@ -259,6 +274,23 @@
                 <p>Already have an account? <a id="goToLogin">Sign In Here</a></p>
             </div>
         </div>
+
+        <div class="card" id="dashboardCard" style="display: none;">
+            <h2>User Profile Balance</h2>
+            <div class="subtitle" id="userGreeting">Loading node mapping status...</div>
+
+            <div class="balance-box">
+                <span class="balance-label">Accumulated Gold Coins:</span>
+                <span class="balance-value" id="coinDisplay">0</span>
+            </div>
+
+            <div class="balance-box">
+                <span class="balance-label">Claimable Diamonds:</span>
+                <span class="balance-value diamonds" id="diamondDisplay">0</span>
+            </div>
+
+            <button class="btn-submit" id="signOutBtn" style="background: #ff4d4d; box-shadow: 0 4px 12px rgba(255,77,77,0.3); margin-top: 15px;">Disconnect Secure Node</button>
+        </div>
     </div>
 
     <script>
@@ -279,10 +311,12 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // Screen Toggling Mechanics
+        // Structural UI Elements
         const loginCard = document.getElementById("loginCard");
         const registerCard = document.getElementById("registerCard");
+        const dashboardCard = document.getElementById("dashboardCard");
 
+        // UI View Swapping Listeners
         document.getElementById("goToRegister").addEventListener("click", () => {
             loginCard.style.display = "none";
             registerCard.style.display = "block";
@@ -293,7 +327,7 @@
             loginCard.style.display = "block";
         });
 
-        // Registration Logic Handler
+        // 1. REGISTRATION LOGIC WITH EMAIL VERIFICATION FORCED
         function handleRegisterSubmit(event) {
             event.preventDefault();
 
@@ -306,20 +340,25 @@
                 return;
             }
 
-            // Create user profile on Firebase Auth
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    alert("Registration Successful! Secure profile allocated.");
+
+                    // Send the safety verification link straight to their mail provider
+                    user.sendEmailVerification()
+                        .then(() => {
+                            alert("Registration Node Created! Verification email has been sent to " + email + ". Please confirm your email address before attempting to sign in.");
+                        });
                     
-                    // Create an initial entry for their coin/diamond balances in the Realtime Database
+                    // Allocate balance variables directly in Realtime Database node
                     database.ref('users/' + user.uid).set({
                         email: email,
-                        coins: 0,
+                        coins: 100, // starting gift coins
                         diamonds: 0,
                         createdAt: new Date().toISOString()
                     }).then(() => {
-                        // Switch back to login page automatically
+                        // Wipe forms and switch back to verification processing screen
+                        document.getElementById("registerForm").reset();
                         registerCard.style.display = "none";
                         loginCard.style.display = "block";
                     });
@@ -329,7 +368,7 @@
                 });
         }
 
-        // Sign-In Logic Handler
+        // 2. SIGN IN LOGIC BLOCK WITH VALIDATION GATEKEEPING
         function handleAuthSubmit(event) {
             event.preventDefault();
 
@@ -345,21 +384,81 @@
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
+
+                    // Security check: Reject entry if the verification link hasn't been handled yet
+                    if (!user.emailVerified) {
+                        alert("Access Suspended: Your email address is unverified. Please check your inbox or spam directory for the verification link.");
+                        auth.signOut(); // Kick out unverified accounts
+                        return;
+                    }
+
                     alert("Sign In Successful! Welcome to FireRewards.");
-                    console.log("Logged user UID:", user.uid);
-                    
-                    // This is where you will route them to your dashboard view later!
+                    loadDashboardView(user);
                 })
                 .catch((error) => {
                     alert("Authentication Failure: " + error.message);
                 });
         }
 
-        // Temporary Placeholders
+        // 3. GOOGLE POPUP IDENTITY PROVIDER CONTEXT
         document.getElementById("googleSignInBtn").addEventListener("click", () => {
-            alert("Google Sign-In integration framework placeholder triggered.");
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            // Runs authentication protocols directly on top of mobile viewports
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    const user = result.user;
+                    
+                    // Since Google accounts are pre-verified through Google, check/add database tracking entry immediately
+                    database.ref('users/' + user.uid).once('value', (snapshot) => {
+                        if (!snapshot.exists()) {
+                            database.ref('users/' + user.uid).set({
+                                email: user.email,
+                                coins: 100,
+                                diamonds: 0,
+                                createdAt: new Date().toISOString()
+                            });
+                        }
+                    });
+
+                    alert("Google Sign In Successful!");
+                    loadDashboardView(user);
+                })
+                .catch((error) => {
+                    alert("Google Sign In Failed: " + error.message);
+                });
         });
 
+        // 4. LOAD REWARDS VIEW INTERFACE MECHANICS
+        function loadDashboardView(user) {
+            loginCard.style.display = "none";
+            registerCard.style.display = "none";
+            dashboardCard.style.display = "block";
+            
+            document.getElementById("userGreeting").innerText = "Active Node: " + user.email;
+
+            // Stream realtime user database nodes down onto screen selectors
+            database.ref('users/' + user.uid).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById("coinDisplay").innerText = data.coins || 0;
+                    document.getElementById("diamondDisplay").innerText = data.diamonds || 0;
+                }
+            });
+        }
+
+        // DISCONNECT NODE MECHANICS
+        document.getElementById("signOutBtn").addEventListener("click", () => {
+            auth.signOut().then(() => {
+                alert("Secure Node Disconnected.");
+                dashboardCard.style.display = "none";
+                loginCard.style.display = "block";
+                document.getElementById("authForm").reset();
+                grecaptcha.reset(); // clear captcha box state
+            });
+        });
+
+        // FORGOT PASSWORD
         document.getElementById("forgotPasswordLink").addEventListener("click", () => {
             const email = document.getElementById("emailField").value;
             if (!email) {
