@@ -193,20 +193,67 @@
             font-size: 0.8rem;
         }
 
-        /* Balance Display Layout styles */
-        .balance-box {
-            background-color: #222227;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #2d2d34;
+        /* Original Game Rewards UI Element Styles */
+        .game-stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-        .balance-label { font-weight: 600; color: var(--text-muted); }
-        .balance-value { font-weight: 700; color: var(--accent-cyan); font-size: 1.2rem; }
-        .balance-value.diamonds { color: var(--accent-gold); }
+
+        .stat-card {
+            background-color: #222227;
+            border: 1px solid #2d2d34;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-val {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .stat-val.diamonds {
+            color: var(--accent-gold);
+        }
+
+        .action-zone {
+            background-color: #1f1f24;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px dashed #3d3d44;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            width: 100%;
+            background-color: #2d2d34;
+            color: var(--text-light);
+            border: 1px solid #3d3d44;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            border-color: var(--accent-cyan);
+            background-color: #222227;
+        }
     </style>
 </head>
 <body>
@@ -276,20 +323,27 @@
         </div>
 
         <div class="card" id="dashboardCard" style="display: none;">
-            <h2>User Profile Balance</h2>
-            <div class="subtitle" id="userGreeting">Loading node mapping status...</div>
+            <h2>FireRewards Dashboard</h2>
+            <div class="subtitle" id="userGreeting">Connecting to user context stream...</div>
 
-            <div class="balance-box">
-                <span class="balance-label">Accumulated Gold Coins:</span>
-                <span class="balance-value" id="coinDisplay">0</span>
+            <div class="game-stats-container">
+                <div class="stat-card">
+                    <span class="stat-label">Gold Coins</span>
+                    <span class="stat-val" id="coinDisplay">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Diamonds</span>
+                    <span class="stat-val diamonds" id="diamondDisplay">0</span>
+                </div>
             </div>
 
-            <div class="balance-box">
-                <span class="balance-label">Claimable Diamonds:</span>
-                <span class="balance-value diamonds" id="diamondDisplay">0</span>
+            <div class="action-zone">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Task Platform Access Matrix</div>
+                <button class="btn-action" onclick="alert('AdMob Reward Intent Frame Placeholder Triggered')">Watch Ads for Coins</button>
+                <button class="btn-action" onclick="alert('Diamond Exchange Matrix Opened')">Redeem Free Fire Diamonds</button>
             </div>
 
-            <button class="btn-submit" id="signOutBtn" style="background: #ff4d4d; box-shadow: 0 4px 12px rgba(255,77,77,0.3); margin-top: 15px;">Disconnect Secure Node</button>
+            <button class="btn-submit" id="signOutBtn" style="background: #ff4d4d; box-shadow: 0 4px 12px rgba(255,77,77,0.3);">Disconnect Secure Node</button>
         </div>
     </div>
 
@@ -435,7 +489,7 @@
             registerCard.style.display = "none";
             dashboardCard.style.display = "block";
             
-            document.getElementById("userGreeting").innerText = "Active Node: " + user.email;
+            document.getElementById("userGreeting").innerText = "Active Account: " + user.email;
 
             // Stream realtime user database nodes down onto screen selectors
             database.ref('users/' + user.uid).on('value', (snapshot) => {
