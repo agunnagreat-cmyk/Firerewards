@@ -3,1336 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireRewards Production</title>
+    <title>FireRewards - Secure Processing System Nodes</title>
+    <!-- Google reCAPTCHA API Script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root {
-            --bg-dark: #121214;
-            --card-dark: #1a1a1e;
-            --accent-gold: #ff9f43;
-            --accent-cyan: #00d2d3;
-            --accent-blue: #0abde3;
-            --text-light: #ffffff;
-            --text-muted: #aaaaaa;
-            
-            /* Light Theme Overrides */
-            --bg-light: #f5f6fa;
-            --card-light: #ffffff;
-            --text-dark: #2f3640;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
+            --bg-color: #121214;
+            --card-color: #1a1a1e;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --accent-orange: #f97316;
+            --accent-cyan: #06b6d4;
+            --input-bg: #27272a;
+            --input-border: #3f3f46;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            transition: background-color 0.3s, color 0.3s;
-            overflow-x: hidden;
-        }
-
-        body.light-theme {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        .app-view {
-            display: none;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            padding: 20px 15px 90px 15px;
+        }
+
+        .container {
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .active-view {
-            display: block;
-        }
-
-        .card {
-            background: var(--card-dark);
-            border-radius: 16px;
+            max-width: 400px;
             padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: background 0.3s;
+            box-sizing: border-box;
         }
 
-        body.light-theme .card {
-            background: var(--card-light);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .alert-banner {
-            background: #ff4d4d;
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
+        .header {
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 14px;
+            margin-bottom: 30px;
         }
 
-        .network-bar {
-            background: #2ed573;
-            color: white;
-            text-align: center;
-            font-size: 11px;
-            padding: 4px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            display: none;
-        }
-        .network-bar.offline {
-            background: #ff4757;
-            display: block;
-        }
-
-        .section-title {
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent-gold);
-            margin-bottom: 12px;
+        .header h1 {
+            color: var(--accent-orange);
+            font-size: 2rem;
+            margin: 0;
             font-weight: 700;
         }
 
-        input, select {
-            width: 100%;
-            padding: 14px;
-            background: #252529;
-            border: 1px solid #333;
-            border-radius: 10px;
-            color: white;
-            font-size: 15px;
-            margin-bottom: 15px;
-            outline: none;
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 5px 0 0 0;
         }
 
-        body.light-theme input, body.light-theme select {
-            background: #eef2f5;
-            border: 1px solid #ccc;
-            color: var(--text-dark);
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border: none;
+        .card {
+            background-color: var(--card-color);
             border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            color: white;
-            margin-bottom: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
 
-        button:active {
-            transform: scale(0.98);
+        h2 {
+            color: var(--accent-orange);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
         }
 
-        button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
-        .btn-gold { background: linear-gradient(135deg, #ff9f43, #ff7675); }
-        .btn-cyan { background: linear-gradient(135deg, #0abde3, #00d2d3); }
-        .btn-blue { background: linear-gradient(135deg, #2e86de, #48dbfb); }
-
-        .balance-box {
+        .btn-google {
+            width: 100%;
+            background-color: #ffffff;
+            color: #1f2937;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .balance-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent-cyan);
-        }
-
-        .progress-wrapper {
-            margin-top: 5px;
-        }
-        .progress-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-        .progress-container {
-            background: #252529;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        body.light-theme .progress-container {
-            background: #eef2f5;
-        }
-        .progress-bar {
-            background: var(--accent-cyan);
-            width: 0%;
-            height: 100%;
-            border-radius: 5px;
-            transition: width 0.4s ease;
-        }
-
-        .avatar-uploader {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #252529;
-            border: 2px dashed var(--accent-gold);
-            margin: 0 auto 15px auto;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 10px;
             cursor: pointer;
-            position: relative;
-            background-size: cover;
-            background-position: center;
-        }
-        .avatar-uploader span {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            padding: 5px;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
         }
 
-        .profile-badge {
+        .btn-google:hover {
+            background-color: #f3f4f6;
+        }
+
+        .divider {
             display: flex;
             align-items: center;
-            gap: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
             margin-bottom: 20px;
         }
-        .profile-badge .user-img {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: #333;
-            background-size: cover;
-            background-position: center;
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--input-border);
         }
 
-        .dev-badge-card {
-            background: linear-gradient(135deg, #1e1b4b, #311042);
-            border: 2px solid #a855f7;
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-        .dev-badge-card::after {
-            content: "👑 OWNER";
-            position: absolute;
-            top: 12px;
-            right: -25px;
-            background: #eab308;
-            color: #000;
-            font-size: 9px;
-            font-weight: 900;
-            padding: 4px 25px;
-            transform: rotate(45deg);
+        .divider:not(:empty)::before { margin-right: .5em; }
+        .divider:not(:empty)::after { margin-left: .5em; }
+
+        .form-group {
+            margin-bottom: 16px;
         }
 
-        .navigation-dock {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
+        .form-control {
             width: 100%;
-            max-width: 500px;
-            background: #16161a;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid #222;
-            z-index: 999;
-        }
-
-        body.light-theme .navigation-dock {
-            background: #ffffff;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .nav-tab {
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-            padding: 5px;
-            margin: 0;
-            width: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .nav-tab.active-tab {
-            color: var(--accent-cyan);
-        }
-        .nav-tab svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-            margin-bottom: 4px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #252529;
-        }
-        body.light-theme .history-item {
-            border-bottom: 1px solid #eef2f5;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            padding: 20px;
-        }
-        .modal-box {
-            background: var(--card-dark);
-            width: 100%;
-            max-width: 400px;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-        body.light-theme .modal-box {
-            background: var(--card-light);
-        }
-
-        canvas {
-            background: #1a1a1e;
-            border: 2px solid #333;
-            border-radius: 12px;
-            display: block;
-            margin: 15px auto;
-            max-width: 100%;
-        }
-
-        .ticker-panel {
-            background: #252529;
-            border-left: 4px solid var(--accent-gold);
-            padding: 15px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            padding: 14px;
             border-radius: 8px;
-            min-height: 75px;
+            color: var(--text-primary);
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+        }
+
+        /* Center the reCAPTCHA widget neatly inside the layout box */
+        .recaptcha-wrapper {
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 13px;
-            line-height: 1.5;
+            margin: 20px 0;
+            min-height: 78px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .footer-links {
             text-align: center;
-            transition: opacity 0.3s ease;
-        }
-        body.light-theme .ticker-panel {
-            background: #eef2f5;
+            margin-top: 20px;
+            font-size: 0.85rem;
         }
 
-        .sens-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-family: monospace;
-            font-size: 12px;
+        .footer-links p {
+            margin: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .footer-links a {
             color: var(--accent-cyan);
-            text-align: left;
-            margin-top: 10px;
-        }
-        .sens-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .arcade-container {
-            position: relative;
-            width: 300px;
-            margin: 0 auto;
-        }
-        .game-menu-overlay {
-            position: absolute;
-            top: 2px; left: 2px;
-            width: 296px; height: 146px;
-            background: rgba(20,20,24,0.9);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-        .game-menu-overlay p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-        .game-mini-btn {
-            padding: 8px 18px;
-            width: auto;
-            font-size: 12px;
-            margin-bottom: 0;
+            text-decoration: none;
+            font-weight: 600;
         }
 
-        .switch-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-        .switch-label {
-            font-size: 14px;
+        .footer-links a.forgot-link {
+            color: var(--accent-orange);
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
-    <div id="networkAlert" class="network-bar">OFFLINE MODE DETECTED: ACCESS HALTED</div>
-
-    <div id="viewLogin" class="app-view active-view">
-        <div style="text-align: center; margin: 40px 0 20px 0;">
-            <h1 style="color: var(--accent-gold); font-size: 32px; font-weight: 800;">FireRewards</h1>
-            <p style="color: var(--text-muted); font-size: 14px;">Secure Processing System Nodes</p>
+    <div class="container">
+        <div class="header">
+            <h1>FireRewards</h1>
+            <p>Secure Processing System Nodes</p>
         </div>
 
-        <div class="card" id="loginCardContainer">
-            <div class="section-title">Account Sign In</div>
-            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Sign in to sync your diamond rewards database across nodes.</p>
-            
-            <button class="btn-google" id="btnGoogleAuth" onclick="handleGoogleSignInSimulation()" style="background: #ffffff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #747775; padding: 12px; font-size: 15px; margin-bottom: 15px;">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48" style="display: block;">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                    <path fill="#4285F4" d="M46.5 24c0-1.55-.15-3.24-.47-4.75H24v9h12.75c-.55 3-2.25 5.54-4.75 7.23l7.36 5.71C43.73 37.33 46.5 31.33 46.5 24z"></path>
-                    <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"></path>
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.36-5.71c-2.11 1.41-4.8 2.3-8.53 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                </svg>
+        <div class="card">
+            <h2>Account Sign In</h2>
+            <div class="subtitle">Sign in to sync your diamond rewards database across nodes.</div>
+
+            <!-- Google Authentication Option -->
+            <button class="btn-google" id="googleSignInBtn">
+                <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/copy_of_24dp.png" alt="Google logo" width="18" height="18">
                 Continue with Google
             </button>
 
-            <div style="border-top: 1px solid #333; margin: 15px 0; position: relative;">
-                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--card-dark); padding: 0 10px; font-size: 11px; color: var(--text-muted);">OR LOG IN WITH EMAIL</span>
-            </div>
+            <div class="divider">OR LOG IN WITH EMAIL</div>
 
-            <input type="email" id="authEmailInput" placeholder="Enter Account Email Address" style="-webkit-user-select: text; user-select: text;">
-            <input type="password" id="authPasswordInput" placeholder="Enter Security Password" style="-webkit-user-select: text; user-select: text;">
-            
-            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <div class="g-recaptcha" data-theme="dark" data-sitekey="YOUR_RECAPTCHA_SITE_KEY" id="loginRecaptchaBox"></div>
-            </div>
-
-            <button class="btn-cyan" onclick="handleManualEmailAuth()">Secure Account Sign In</button>
-            
-            <p style="font-size: 13px; text-align: center; margin-top: 10px;">
-                Don't have an account? <a href="#" onclick="toggleAuthForms('signup')" style="color: var(--accent-cyan); text-decoration: none; font-weight: bold;">Register Here</a>
-            </p>
-            <p style="font-size: 12px; text-align: center; margin-top: 10px;"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
-        </div>
-
-        <div class="card" id="signupCardContainer" style="display: none;">
-            <div class="section-title">Create New Account</div>
-            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Register with a valid email to track and save your reward points status securely.</p>
-            
-            <input type="email" id="regEmailInput" placeholder="Enter Valid Email Address" style="-webkit-user-select: text; user-select: text;">
-            <input type="password" id="regPasswordInput" placeholder="Create Secure Password" style="-webkit-user-select: text; user-select: text;">
-            <input type="password" id="regPasswordConfirmInput" placeholder="Confirm Secure Password" style="-webkit-user-select: text; user-select: text;">
-            
-            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <div class="g-recaptcha" data-theme="dark" data-sitekey="YOUR_RECAPTCHA_SITE_KEY" id="registerRecaptchaBox"></div>
-            </div>
-
-            <button class="btn-gold" onclick="handleManualEmailRegistration()">Register & Verify Email</button>
-            
-            <p style="font-size: 13px; text-align: center; margin-top: 10px;">
-                Already have an account? <a href="#" onclick="toggleAuthForms('login')" style="color: var(--accent-gold); text-decoration: none; font-weight: bold;">Sign In Here</a>
-            </p>
-        </div>
-
-        <div class="card" id="emailVerifyCardContainer" style="display: none;">
-            <div class="section-title" style="color: var(--accent-cyan);">Verify Your Email Node</div>
-            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; line-height: 1.4;">
-                A 6-digit confirmation security code has been sent to your email address. Please type it below to activate access nodes.
-            </p>
-            <input type="text" id="verificationCodeInput" placeholder="Enter 6-Digit Code (e.g., 123456)" maxlength="6" style="-webkit-user-select: text; user-select: text; text-align: center; font-size: 20px; letter-spacing: 4px;">
-            
-            <button class="btn-cyan" onclick="validateEmailVerificationCode()">Confirm & Activate Profile</button>
-            <button style="background: transparent; color: var(--text-muted); font-size: 12px;" onclick="toggleAuthForms('signup')">Back to Registration</button>
-        </div>
-
-        <div class="card" id="mainIdentityGate" style="display: none;">
-            <div id="nameSetupSection">
-                <div class="section-title">Setup Permanent Identity Profile</div>
-                <div class="avatar-uploader" id="loginAvatarBox" onclick="document.getElementById('avatarFileInput').click()">
-                    <span id="uploaderPrompt">Tap to<br>Add Photo</span>
+            <!-- Email/Password Credentials Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <input type="email" id="emailInput" class="form-control" placeholder="Enter Account Email Address" required>
                 </div>
-                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="processAvatarImage(event)">
-                <input type="text" id="loginUser" placeholder="Choose Unique Player Username" style="-webkit-user-select: text; user-select: text;">
-            </div>
-            
-            <button class="btn-gold" onclick="validateLoginGate()">Verify and Secure Account</button>
-        </div>
-    </div>
 
-    <div id="appMainDock" style="display: none;">
-
-        <div id="viewHome" class="app-view">
-            <div class="profile-badge">
-                <div class="user-img id-avatar-display"></div>
-                <div>
-                    <h3 id="profileIdLabel" style="font-size: 16px;">Player</h3>
-                    <small style="color: var(--accent-gold); font-weight: bold;" id="welcomeBackTag">Welcome Back!</small>
+                <div class="form-group">
+                    <input type="password" id="passwordInput" class="form-control" placeholder="Enter Security Password" required>
                 </div>
-            </div>
 
-            <div class="alert-banner" id="tickerBanner">
-                Synchronizing live matrix pipelines...
-            </div>
-
-            <div class="card">
-                <div class="balance-box">
-                    <div>
-                        <div class="section-title" style="margin: 0;">Available Balance</div>
-                        <div class="balance-value" id="homeCoins">0 COINS</div>
-                    </div>
+                <!-- Google reCAPTCHA v2 Widget Container -->
+                <div class="recaptcha-wrapper">
+                    <div class="g-recaptcha" data-theme="dark" data-sitekey="6LfAl0ItAAAAALWGLfnOVj47bj8Rlj-iteZ19qys"></div>
                 </div>
+
+                <button type="submit" class="btn-submit">Secure Account Sign In</button>
+            </form>
+
+            <div class="footer-links">
+                <p>Don't have an account? <a href="#">Register Here</a></p>
+                <p><a href="#" class="forgot-link">Forgot Password Details?</a></p>
             </div>
-
-            <div class="card">
-                <div class="section-title">Goal Verification Tracker</div>
-                <div class="progress-wrapper">
-                    <div class="progress-meta">
-                        <span>Diamonds Goal Status</span>
-                        <span id="targetProgress">0 / 200 Coins</span>
-                    </div>
-                    <div class="progress-container">
-                        <div id="progressBar" class="progress-bar"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Earning Stations</div>
-                <div class="progress-meta" style="margin-bottom: 10px;">
-                    <span>Daily Activity Limit Pool:</span>
-                    <span id="profileLimit">0 / 20</span>
-                </div>
-                
-                <button id="btnCheckIn" class="btn-gold" onclick="runDailyCheckIn()">Claim Daily Reward (+5)</button>
-                <button id="btnWatchAd" class="btn-cyan" onclick="runStandardVideoAd()">Watch Ad to Earn (+1)</button>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Order Distribution Terminal</div>
-                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">Select Diamonds Package:</label>
-                <select id="prizeDropdown">
-                    <option value="100">Garena Free Fire: 100 Diamonds (Cost: 200 Coins)</option>
-                    <option value="210">Garena Free Fire: 210 Diamonds (Cost: 400 Coins)</option>
-                    <option value="530">Garena Free Fire: 530 Diamonds (Cost: 1000 Coins)</option>
-                    <option value="1080">Garena Free Fire: 1080 Diamonds (Cost: 2000 Coins)</option>
-                </select>
-
-                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">Player Account UID:</label>
-                <input type="text" id="playerUidInput" placeholder="Enter Game Player ID" style="-webkit-user-select: text; user-select: text;">
-
-                <button class="btn-blue" id="btnExchange" onclick="executeRedemption()">Submit Exchange Order</button>
-            </div>
-        </div>
-
-        <div id="viewHistory" class="app-view">
-            <h2 style="margin-bottom: 15px; font-weight: 800;">Exchange History</h2>
-            <div class="card">
-                <div class="section-title">Secure Payout Registry</div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5;">
-                    * Due to manual evaluation protocols, requests require up to a **10-day processing period** before diamonds clear.
-                </p>
-                <div id="historyLogContainer"></div>
-            </div>
-        </div>
-
-        <div id="viewSettings" class="app-view">
-            <h2 style="margin-bottom: 15px; font-weight: 800;">System Settings</h2>
-            
-            <div class="card">
-                <div class="section-title">Device Interface Skin Theme</div>
-                <select id="themeToggle" onchange="toggleAppThemeStyle()">
-                    <option value="dark">Dark Onyx Core Theme (Active)</option>
-                    <option value="light">Light Slate Clean Theme</option>
-                </select>
-
-                <div class="switch-container">
-                    <span class="switch-label">Enable Daily Reminders Notification</span>
-                    <input type="checkbox" id="reminderNotificationToggle" checked style="width: auto; margin: 0;">
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Update Profile Security Credentials</div>
-                <input type="password" id="settingsNewPassword" placeholder="Type Brand New Password Key" style="-webkit-user-select: text; user-select: text;">
-                <button class="btn-gold" onclick="processPasswordModification()" style="margin-bottom:0; padding:10px;">Update System Password</button>
-            </div>
-
-            <div class="card" style="padding: 10px; background: transparent; box-shadow: none;">
-                <button class="btn-cyan" onclick="openModal('modalSupport')">Contact Customer Support Helpdesk</button>
-                <button class="btn-blue" onclick="openModal('modalTerms')">View Application Privacy Terms</button>
-                <button style="background: #ff4757; color: white;" onclick="performAppLogout()">Log Out Account</button>
-            </div>
-        </div>
-
-        <div id="viewProfile" class="app-view">
-            <h2 style="margin-bottom: 15px; font-weight: 800;">Gaming Station Hub</h2>
-            
-            <div class="card dev-badge-card">
-                <div class="section-title" style="color: #facc15;">Connect with App Founder</div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 55px; height: 55px; border-radius: 50%; background: radial-gradient(#a855f7, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 24px;">🎮</div>
-                    <div>
-                        <h4 style="font-size: 18px; color: #fff; text-shadow: 0 0 5px #a855f7;">mullaranking</h4>
-                        <p style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">Free Fire UID: <b style="color: #facc15; font-family: monospace;">10003208732</b></p>
-                        <p style="font-size: 10px; color: #a5b4fc; font-style: italic; margin-top: 4px;">Send a friend request to team up on the battleground!</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Free Fire Hacks & Pro Strategies</div>
-                <div id="liveTipsTicker" class="ticker-panel">Loading critical updates...</div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Jump Block Arena (Practice Station)</div>
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">* Non-monetized practice station. Running games yields 0 account coins.</p>
-                <div class="arcade-container">
-                    <div id="blockStartMenu" class="game-menu-overlay">
-                        <h4 style="margin-bottom:4px;">Bouncing Block</h4>
-                        <p>Obstacle Avoidance Mode</p>
-                        <button class="btn-gold game-mini-btn" onclick="triggerBlockGameLaunch()">Launch Practice</button>
-                    </div>
-                    <div id="blockGameOverMenu" class="game-menu-overlay" style="display:none;">
-                        <h4 style="color:#ff4d4d; margin-bottom:2px;">Block Crashed!</h4>
-                        <p id="blockScoresDisplay">Score: 0 | High: 0</p>
-                        <button class="btn-gold game-mini-btn" onclick="triggerBlockGameLaunch()">Try Again</button>
-                    </div>
-                    <canvas id="gameCanvas" width="300" height="150"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Diamond Rush Catcher (Competitive Pool)</div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Tap left/right side of the canvas. Reach 10 points to unlock +1 coin!</p>
-                <div class="arcade-container">
-                    <div id="catcherStartMenu" class="game-menu-overlay">
-                        <h4 style="margin-bottom:4px;">Diamond Rush</h4>
-                        <p>Catch Falling Crystals</p>
-                        <button class="btn-cyan game-mini-btn" onclick="triggerCatcherGameLaunch()">Start Game</button>
-                    </div>
-                    <div id="catcherGameOverMenu" class="game-menu-overlay" style="display:none;">
-                        <h4 style="color:#ff4d4d; margin-bottom:2px;">Game Over</h4>
-                        <p id="catcherScoresDisplay">Score: 0 | Record High: 0</p>
-                        <button class="btn-cyan game-mini-btn" onclick="triggerCatcherGameLaunch()">Play Again</button>
-                    </div>
-                    <canvas id="catcherCanvas" width="300" height="150"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">Hardware Headshot Sensitivity Panel</div>
-                <select id="sensitivitySelector" onchange="renderSensitivityData()">
-                </select>
-                <div id="sensDisplayBox" style="background: #111; padding: 15px; border-radius: 8px; min-height: 100px;">
-                    <p style="color: var(--text-muted); text-align: center; font-size: 13px;">Select device variant to deploy exact structural target configurations.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="navigation-dock">
-            <div class="nav-tab active-tab" onclick="switchTab('Home', this)">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                <span>Home</span>
-            </div>
-            <div class="nav-tab" onclick="switchTab('History', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                <span>History</span>
-            </div>
-            <div class="nav-tab" onclick="switchTab('Settings', this)">
-                <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                <span>Settings</span>
-            </div>
-            <div class="nav-tab" onclick="switchTab('Profile', this)">
-                <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                <span>Toolkit</span>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="modalSupport" class="modal-overlay">
-        <div class="modal-box">
-            <div class="section-title">System Support Desk</div>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: left; line-height: 1.4;">
-                Describe your ticket parameters below. If direct application communication chains cannot launch, copy our care core help address: <br>
-                <b style="color: var(--accent-cyan); display:block; text-align:center; margin-top:5px; -webkit-user-select: text; user-select: text;">freediamondsgarena7@gmail.com</b>
-            </p>
-            <textarea id="supportTextInput" style="width:100%; height:100px; background:#222; border:1px solid #444; border-radius:8px; color:white; padding:10px; margin-bottom:15px; outline:none; resize:none;" placeholder="Type support submission logs..."></textarea>
-            <button class="btn-cyan" onclick="dispatchSupportEmail()">Dispatch Report Ticket</button>
-            <button style="background:#444;" onclick="closeModal('modalSupport')">Close</button>
-        </div>
-    </div>
-
-    <div id="modalTerms" class="modal-overlay">
-        <div class="modal-box" style="max-width: 450px;">
-            <div class="section-title">Terms & Safety Matrices</div>
-            <div style="text-align:left; font-size:12px; color:var(--text-muted); max-height:220px; overflow-y:auto; margin-bottom:15px; padding-right:5px; line-height: 1.6;">
-                <p>1. Anti-Cheat Protocol: Intercept wrappers, speed-clickers, and hardware macros invalidate accounts permanently.</p><br>
-                <p>2. Dispatched Payout Timeframes: Points conversions are managed under verification channels. Standard distributions map directly to a full 10-day pending window clearance layout.</p><br>
-                <p>3. Procurement Transparency: Virtual assets distributed through terminal orders are fully sourced from legitimate developer funds via verified **Carry1st Shop** premium pathways.</p>
-            </div>
-            <button class="btn-blue" onclick="closeModal('modalTerms')">Acknowledge</button>
-        </div>
-    </div>
-
-    <div id="modalRecovery" class="modal-overlay">
-        <div class="modal-box">
-            <div class="section-title">Account Credential Recovery</div>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
-                Provide your registered profile email address. Our security node will send an absolute password replacement reset hyperlink.
-            </p>
-            <input type="email" id="recoveryEmailInput" placeholder="Enter Account Email" style="-webkit-user-select: text; user-select: text;">
-            <button class="btn-gold" onclick="triggerPasswordResetRecovery()">Send Reset Email Link</button>
-            <button style="background:#444;" onclick="closeModal('modalRecovery')">Back to Gateway</button>
-        </div>
-    </div>
-
-    <div id="modalAdPlayer" class="modal-overlay">
-        <div class="modal-box">
-            <div class="section-title" style="color: var(--accent-cyan);">Streaming Sponsored Video Ads</div>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Do not quit this interface window or rewards will be instantly forfeited!</p>
-            <div id="adWindowCountdownClock" style="font-size: 48px; font-weight: 800; color: var(--accent-gold); margin: 15px 0;">15</div>
-            <button style="background: #ff4757; color: white;" onclick="abandonActiveAdStream()">Cancel & Skip Ad</button>
         </div>
     </div>
 
     <script>
-        let walletBalance = parseInt(localStorage.getItem('user_coins')) || 0;
-        let counterAdsToday = parseInt(localStorage.getItem('ads_today')) || 0;
-        let lastLoggedCheckIn = localStorage.getItem('last_check_in_date') || "";
-        let transactionHistoryList = JSON.parse(localStorage.getItem('tx_history')) || [];
-        let storedUserNickname = localStorage.getItem('user_nickname_id') || "";
-        
-        const SYSTEM_DAILY_CAP = 20; 
-        let profilePhotoDataUrl = localStorage.getItem('user_profile_photo') || "";
-        let adPlaybackTimerReference = null;
-        let simulatedVerificationCode = ""; // Holds the active generation code
+        function handleLogin(event) {
+            event.preventDefault();
 
-        const proTipsPool = [
-            "Use a downed enemy as bait to lure their remaining teammates out into the open.",
-            "Drop Loot For Teammates: Regularly open your backpack to discard spare ammo and medkits for your squadmates.",
-            "Synchronized Target Fires: Count down on voice chat to fire on a single target simultaneously for an instant knock.",
-            "The Info-Collector Build: Run Moco on your squad to automatically highlight hit enemies for the rest of the team.",
-            "Mina Landmine Traps: Place landmines directly underneath dropped loot boxes or inside narrow building stairwells.",
-            "Reset Aim Lock: Quickly alternate scope commands in-and-out to latch targeted aim-assist directly back onto target torsos.",
-            "Flashbang Rushing: Synchronize throwable trajectories perfectly right before bursting inside occupied complex layouts."
-        ];
+            // Client-side verification: check if user cleared the reCAPTCHA challenge
+            const recaptchaResponse = grecaptcha.getResponse();
 
-        const advancedSensDB = [
-            { name: "Infinix Hot 50 Pro+ / 50 4G (2025)", gen: 99, dot: 95, x2: 96, x4: 92, snp: 55, cam: 85 },
-            { name: "Infinix Hot 40 Pro / 40i", gen: 96, dot: 92, x2: 94, x4: 90, snp: 50, cam: 80 },
-            { name: "Infinix Note 40 Pro+ 5G / Note 40", gen: 100, dot: 96, x2: 97, x4: 93, snp: 45, cam: 88 },
-            { name: "Infinix Zero 40 5G / Zero Ultra", gen: 98, dot: 94, x2: 95, x4: 91, snp: 48, cam: 82 },
-            { name: "Samsung Galaxy S26 Ultra / S26+ (2026)", gen: 94, dot: 89, x2: 91, x4: 86, snp: 40, cam: 72 },
-            { name: "Samsung Galaxy S25 Ultra / S25 SM", gen: 95, dot: 90, x2: 92, x4: 87, snp: 42, cam: 75 },
-            { name: "Samsung Galaxy S24 Ultra / FE", gen: 93, dot: 88, x2: 90, x4: 85, snp: 45, cam: 76 },
-            { name: "Samsung Galaxy A56 5G / A55 5G", gen: 97, dot: 93, x2: 94, x4: 89, snp: 52, cam: 81 },
-            { name: "Samsung Galaxy A36 / A35 5G", gen: 96, dot: 91, x2: 93, x4: 88, snp: 50, cam: 79 },
-            { name: "Samsung Galaxy M55 / M35 5G", gen: 95, dot: 92, x2: 93, x4: 90, snp: 55, cam: 83 },
-            { name: "iPhone 17 Pro Max / 17 Pro (2025)", gen: 92, dot: 87, x2: 89, x4: 84, snp: 38, cam: 70 },
-            { name: "iPhone 16 Pro Max / 16 Plus", gen: 93, dot: 88, x2: 90, x4: 85, snp: 40, cam: 72 },
-            { name: "iPhone 15 Pro Max / 15 Pro", gen: 94, dot: 89, x2: 91, x4: 86, snp: 42, cam: 75 },
-            { name: "iPhone 14 Pro Max / 14 Plus", gen: 95, dot: 90, x2: 92, x4: 87, snp: 45, cam: 78 },
-            { name: "Tecno Camon 40 Premier / 40 Pro (2026)", gen: 100, dot: 95, x2: 96, x4: 92, snp: 50, cam: 86 },
-            { name: "Tecno Camon 30 Premier / 30 5G", gen: 98, dot: 94, x2: 95, x4: 91, snp: 52, cam: 84 },
-            { name: "Tecno Phantom V Flip 2 / Fold 2", gen: 97, dot: 93, x2: 94, x4: 89, snp: 45, cam: 80 },
-            { name: "Tecno Spark 30 Pro / 30 5G", gen: 96, dot: 92, x2: 93, x4: 90, snp: 55, cam: 83 },
-            { name: "Tecno Spark 20 Pro+ / 20 Pro", gen: 95, dot: 91, x2: 92, x4: 88, snp: 54, cam: 81 },
-            { name: "Xiaomi 15 Ultra / 15 Pro (2025)", gen: 96, dot: 92, x2: 93, x4: 89, snp: 44, cam: 76 },
-            { name: "Xiaomi 14 Ultra / 14T Pro", gen: 95, dot: 91, x2: 92, x4: 88, snp: 46, cam: 78 },
-            { name: "Xiaomi Redmi Note 14 Pro+ 5G (2025)", gen: 99, dot: 95, x2: 96, x4: 91, snp: 52, cam: 84 },
-            { name: "Xiaomi Redmi Note 13 Pro+ / 13 Pro", gen: 98, dot: 94, x2: 95, x4: 90, snp: 50, cam: 82 },
-            { name: "Xiaomi Poco F6 Pro / F6 5G", gen: 100, dot: 96, x2: 97, x4: 93, snp: 45, cam: 87 },
-            { name: "Xiaomi Poco X6 Pro / X6 5G", gen: 99, dot: 95, x2: 96, x4: 92, snp: 48, cam: 85 },
-            { name: "Oppo Find X8 Pro / Ultra (2025)", gen: 96, dot: 91, x2: 93, x4: 88, snp: 42, cam: 75 },
-            { name: "Oppo Reno 13 Pro / 13 5G", gen: 98, dot: 93, x2: 94, x4: 90, snp: 48, cam: 82 },
-            { name: "Oppo Reno 12 Pro / 12 5G", gen: 97, dot: 92, x2: 93, x4: 89, snp: 50, cam: 80 },
-            { name: "Oppo A3 Pro / A79 5G", gen: 95, dot: 91, x2: 92, x4: 87, snp: 55, cam: 83 },
-            { name: "Vivo X100 Pro / X100 Ultra", gen: 94, dot: 90, x2: 92, x4: 87, snp: 40, cam: 74 },
-            { name: "Vivo V40 Pro / V40 5G (2024)", gen: 98, dot: 94, x2: 95, x4: 91, snp: 46, cam: 83 },
-            { name: "Vivo V30 Pro / V30 Lite", gen: 97, dot: 93, x2: 94, x4: 90, snp: 48, cam: 81 },
-            { name: "Vivo Y200 5G / Y100 5G", gen: 96, dot: 92, x2: 93, x4: 88, snp: 52, cam: 79 },
-            { name: "Realme GT 6 / GT 6T (2024)", gen: 100, dot: 96, x2: 97, x4: 93, snp: 45, cam: 88 },
-            { name: "Realme 13 Pro+ / 13 Pro 5G", gen: 99, dot: 94, x2: 95, x4: 91, snp: 48, cam: 85 },
-            { name: "Realme 12 Pro+ / 12 5G", gen: 98, dot: 93, x2: 94, x4: 90, snp: 50, cam: 83 },
-            { name: "Realme C67 5G / C65", gen: 95, dot: 91, x2: 92, x4: 88, snp: 55, cam: 80 },
-            { name: "OnePlus 13 / 13R (2025)", gen: 93, dot: 88, x2: 90, x4: 85, snp: 38, cam: 72 },
-            { name: "OnePlus 12 / 12R 5G", gen: 94, dot: 89, x2: 91, x4: 86, snp: 40, cam: 75 },
-            { name: "OnePlus Nord 4 / Nord CE4", gen: 97, dot: 93, x2: 94, x4: 89, snp: 48, cam: 82 },
-            { name: "Google Pixel 10 Pro / XL (2025)", gen: 91, dot: 86, x2: 88, x4: 83, snp: 42, cam: 68 },
-            { name: "Google Pixel 9 Pro / 9 Pro XL", gen: 92, dot: 87, x2: 89, x4: 84, snp: 45, cam: 70 },
-            { name: "Google Pixel 8 Pro / 8a", gen: 93, dot: 88, x2: 90, x4: 85, snp: 46, cam: 72 },
-            { name: "Honor Magic 7 Pro / 7 (2025)", gen: 96, dot: 92, x2: 93, x4: 89, snp: 45, cam: 78 },
-            { name: "Honor 200 Pro / 200 Lite", gen: 98, dot: 94, x2: 95, x4: 91, snp: 48, cam: 83 },
-            { name: "Honor X9b 5G / X8b", gen: 97, dot: 93, x2: 94, x4: 90, snp: 52, cam: 81 },
-            { name: "Motorola Edge 50 Ultra / Pro", gen: 95, dot: 90, x2: 92, x4: 87, snp: 44, cam: 76 },
-            { name: "Motorola Moto G85 / G55 5G", gen: 96, dot: 91, x2: 93, x4: 88, snp: 50, cam: 79 },
-            { name: "Sony Xperia 1 VI / 10 VI", gen: 92, dot: 87, x2: 89, x4: 84, snp: 40, cam: 73 },
-            { name: "Asus ROG Phone 9 / 9 Pro (2025)", gen: 100, dot: 98, x2: 98, x4: 95, snp: 42, cam: 90 }
-        ];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            if(storedUserNickname !== "") {
-                document.getElementById('viewLogin').style.display = 'none';
-                document.getElementById('appMainDock').style.display = 'block';
-                document.getElementById('profileIdLabel').innerText = storedUserNickname;
-                document.getElementById('welcomeBackTag').innerText = `Welcome Back, ${storedUserNickname}!`;
-            }
-            initTipsTickerSystem();
-            populateSensitivitySelectors();
-            applyUIProfileImages();
-            checkNetworkValidity();
-        });
-
-        // Split Authentication Views Screen Flow Switcher
-        function toggleAuthForms(targetView) {
-            document.getElementById('loginCardContainer').style.display = 'none';
-            document.getElementById('signupCardContainer').style.display = 'none';
-            document.getElementById('emailVerifyCardContainer').style.display = 'none';
-            document.getElementById('mainIdentityGate').style.display = 'none';
-
-            if(targetView === 'login') {
-                document.getElementById('loginCardContainer').style.display = 'block';
-            } else if (targetView === 'signup') {
-                document.getElementById('signupCardContainer').style.display = 'block';
-            }
-        }
-
-        function checkNetworkValidity() {
-            let alertBox = document.getElementById('networkAlert');
-            if (!navigator.onLine) {
-                alertBox.classList.add('offline');
-                return false;
-            } else {
-                alertBox.classList.remove('offline');
-                return true;
-            }
-        }
-        window.addEventListener('online', checkNetworkValidity);
-        window.addEventListener('offline', checkNetworkValidity);
-
-        let globalTapLockActive = false;
-        function processAntiCheatLockout() {
-            if (!checkNetworkValidity()) {
-                alert("Operation Rejected: Internet link required.");
-                return true;
-            }
-            if (globalTapLockActive) {
-                alert("Cooldown alert: Slow tapping down to prevent automated loops.");
-                return true;
-            }
-            globalTapLockActive = true;
-            setTimeout(() => { globalTapLockActive = false; }, 900);
-            return false;
-        }
-
-        function handleGoogleSignInSimulation() {
-            if(processAntiCheatLockout()) return;
-            implementTemporaryCooldown('btnGoogleAuth', 'Connecting to Google Secure Nodes', 3000);
-            setTimeout(() => {
-                document.getElementById('loginCardContainer').style.display = 'none';
-                document.getElementById('mainIdentityGate').style.display = 'block';
-                alert("Google Authentication Token Verified! Setup your custom username profile below.");
-            }, 3000);
-        }
-
-        // Action 1: Strict Manual Email Sign In Verification Check
-        function handleManualEmailAuth() {
-            if(processAntiCheatLockout()) return;
-            
-            let emailValue = document.getElementById('authEmailInput').value.trim();
-            let passwordValue = document.getElementById('authPasswordInput').value;
-            
-            if(!emailValue || !passwordValue) {
-                alert("Input fields empty: Type a valid email and password.");
+            if (recaptchaResponse.length === 0) {
+                alert("Security Verification Failed: Please complete the reCAPTCHA checkbox challenge.");
                 return;
             }
 
-            // STRICT ENFORCEMENT: Block access completely if reCAPTCHA token is empty
-            let checkCaptchaToken = grecaptcha.getResponse(0); // target first instance index (login)
-            if(!checkCaptchaToken || checkCaptchaToken.length === 0) {
-                alert("Security block: Complete the 'Are you a robot' checkbox check.");
-                return;
-            }
+            // Capture raw input parameters safely
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
 
-            document.getElementById('loginCardContainer').style.display = 'none';
-            document.getElementById('mainIdentityGate').style.display = 'block';
-            grecaptcha.reset(0);
-        }
-
-        // Action 2: Strict Manual Email Registration with Verification Loop
-        function handleManualEmailRegistration() {
-            if(processAntiCheatLockout()) return;
-
-            let emailValue = document.getElementById('regEmailInput').value.trim();
-            let passwordValue = document.getElementById('regPasswordInput').value;
-            let confirmPassword = document.getElementById('regPasswordConfirmInput').value;
-
-            if(!emailValue || !passwordValue || !confirmPassword) {
-                alert("All registration entry elements are required.");
-                return;
-            }
-
-            if(passwordValue !== confirmPassword) {
-                alert("Password matching failure: Check fields and try again.");
-                return;
-            }
-
-            // STRICT ENFORCEMENT: Block access completely if registration reCAPTCHA isn't checked
-            let checkCaptchaToken = grecaptcha.getResponse(1); // target second instance index (registration)
-            if(!checkCaptchaToken || checkCaptchaToken.length === 0) {
-                alert("Security block: Complete the verification reCAPTCHA checkbox before registering.");
-                return;
-            }
-
-            // Generate simulated 6-digit confirmation key loop code
-            simulatedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            console.log("DEBUG DEVICE ENGINE TOKEN CODE:", simulatedVerificationCode);
+            console.log("Client-side validation passed. Ready for Firebase execution node.");
             
-            alert(`Verification Sent! A security check code was fired to ${emailValue}. (For preview purposes, your code is: ${simulatedVerificationCode})`);
-            
-            grecaptcha.reset(1);
-            document.getElementById('signupCardContainer').style.display = 'none';
-            document.getElementById('emailVerifyCardContainer').style.display = 'block';
+            // NEXT STEP: Insert your production Firebase authentication execution block below
         }
-
-        // Action 3: Verify simulated Email verification OTP code entry 
-        function validateEmailVerificationCode() {
-            let entryCode = document.getElementById('verificationCodeInput').value.trim();
-            if(entryCode === "") { alert("Type the validation code to confirm your email address."); return; }
-            
-            if(entryCode !== simulatedVerificationCode) {
-                alert("Security Block: Incorrect confirmation verification pin key.");
-                return;
-            }
-
-            alert("Email Address Authenticated & Confirmed! Set up your username.");
-            document.getElementById('emailVerifyCardContainer').style.display = 'none';
-            document.getElementById('mainIdentityGate').style.display = 'block';
-        }
-
-        function triggerPasswordResetRecovery() {
-            let userMail = document.getElementById('recoveryEmailInput').value.trim();
-            if(!userMail) { alert("Please write down your target account email address first."); return; }
-            alert(`Recovery verification handshake complete! A secure link was fired directly to: ${userMail}`);
-            closeModal('modalRecovery');
-            document.getElementById('recoveryEmailInput').value = "";
-        }
-
-        function processPasswordModification() {
-            let textPass = document.getElementById('settingsNewPassword').value;
-            if(textPass.length < 6) { alert("Security alert: New password must be at least 6 characters."); return; }
-            alert("Success! System credentials updated safely across backend server nodes.");
-            document.getElementById('settingsNewPassword').value = "";
-        }
-
-        function performAppLogout() {
-            storedUserNickname = "";
-            localStorage.removeItem('user_nickname_id');
-            document.getElementById('appMainDock').style.display = 'none';
-            document.getElementById('viewLogin').style.block = 'block';
-            toggleAuthForms('login');
-            switchTab('Home', null);
-            alert("Session disconnected safely.");
-        }
-
-        function processAvatarImage(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profilePhotoDataUrl = e.target.result;
-                    localStorage.setItem('user_profile_photo', profilePhotoDataUrl);
-                    applyUIProfileImages();
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function applyUIProfileImages() {
-            if(profilePhotoDataUrl) {
-                const box = document.getElementById('loginAvatarBox');
-                if(box) {
-                    box.innerHTML = "";
-                    box.style.backgroundImage = `url(${profilePhotoDataUrl})`;
-                }
-                document.querySelectorAll('.id-avatar-display').forEach(el => {
-                    el.style.backgroundImage = `url(${profilePhotoDataUrl})`;
-                });
-            }
-        }
-
-        function validateLoginGate() {
-            if(processAntiCheatLockout()) return;
-            
-            if(storedUserNickname === "") {
-                let nameInput = document.getElementById('loginUser').value.trim();
-                if(!nameInput) { alert("Please input a permanent username."); return; }
-                storedUserNickname = nameInput;
-                localStorage.setItem('user_nickname_id', storedUserNickname);
-            }
-            
-            document.getElementById('viewLogin').style.display = 'none';
-            document.getElementById('appMainDock').style.display = 'block';
-            document.getElementById('profileIdLabel').innerText = storedUserNickname;
-            document.getElementById('welcomeBackTag').innerText = `Welcome Back, ${storedUserNickname}!`;
-            
-            refreshAppLayoutMetrics();
-            switchTab('Home', document.querySelector('.nav-tab'));
-        }
-
-        function initTipsTickerSystem() {
-            let tickerBox = document.getElementById('liveTipsTicker');
-            let rotationIdx = 0;
-            
-            function swapText() {
-                if(!tickerBox) return;
-                tickerBox.style.opacity = 0;
-                setTimeout(() => {
-                    tickerBox.innerText = proTipsPool[rotationIdx];
-                    tickerBox.style.opacity = 1;
-                    rotationIdx = (rotationIdx + 1) % proTipsPool.length;
-                }, 300);
-            }
-            swapText();
-            setInterval(swapText, 5000);
-        }
-
-        function populateSensitivitySelectors() {
-            let selectBox = document.getElementById('sensitivitySelector');
-            selectBox.innerHTML = `<option value="">-- Choose Device Model --</option>`;
-            advancedSensDB.forEach((m, idx) => {
-                selectBox.innerHTML += `<option value="${idx}">${m.name}</option>`;
-            });
-        }
-
-        function renderSensitivityData() {
-            let index = document.getElementById('sensitivitySelector').value;
-            let display = document.getElementById('sensDisplayBox');
-            if(index === "") {
-                display.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 13px;">Select device variant to deploy exact structural target configurations.</p>`;
-                return;
-            }
-            let d = advancedSensDB[index];
-            display.innerHTML = `
-                <div class="sens-grid">
-                    <div class="sens-item"><span>General:</span> <span>${d.gen}</span></div>
-                    <div class="sens-item"><span>Red Dot:</span> <span>${d.dot}</span></div>
-                    <div class="sens-item"><span>2x Scope:</span> <span>${d.x2}</span></div>
-                    <div class="sens-item"><span>4x Scope:</span> <span>${d.x4}</span></div>
-                    <div class="sens-item"><span>Sniper Scope:</span> <span>${d.snp}</span></div>
-                    <div class="sens-item"><span>Free Camera:</span> <span>${d.cam}</span></div>
-                </div>
-            `;
-        }
-
-        function refreshAppLayoutMetrics() {
-            document.getElementById('homeCoins').innerText = `${walletBalance} COINS`;
-            document.getElementById('targetProgress').innerText = `${walletBalance} / 200 Coins`;
-            document.getElementById('profileLimit').innerText = `${counterAdsToday} / ${SYSTEM_DAILY_CAP}`;
-            
-            let percentageRatio = (walletBalance / 200) * 100;
-            document.getElementById('progressBar').style.width = `${Math.min(percentageRatio, 100)}%`;
-            
-            localStorage.setItem('user_coins', walletBalance);
-            localStorage.setItem('ads_today', counterAdsToday);
-            localStorage.setItem('tx_history', JSON.stringify(transactionHistoryList));
-            renderHistoryLogSheets();
-        }
-
-        function renderHistoryLogSheets() {
-            let container = document.getElementById('historyLogContainer');
-            if(transactionHistoryList.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 25px 0; font-size:13px;">No transaction entries logged.</p>`;
-                return;
-            }
-            container.innerHTML = "";
-            transactionHistoryList.forEach(item => {
-                container.innerHTML += `
-                    <div class="history-item">
-                        <div>
-                            <span style="font-weight:bold; display:block; font-size:14px; color:white;">${item.itemTitle} (${item.amt} Gems)</span>
-                            <small style="color:var(--text-muted); font-size:11px;">UID: ${item.uid} | Logged: ${item.dateStr}</small>
-                        </div>
-                        <span style="color:var(--accent-gold); font-size:13px; font-weight:bold;">Pending</span>
-                    </div>`;
-            });
-        }
-
-        function switchTab(viewId, tabComponent) {
-            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active-tab'));
-            
-            let targetView = document.getElementById(`view${viewId}`);
-            if(targetView) targetView.classList.add('active-view');
-            if(tabComponent) tabComponent.classList.add('active-tab');
-            
-            refreshAppLayoutMetrics();
-        }
-
-        function implementTemporaryCooldown(elementId, textFeedback, durationMs) {
-            let targetBtn = document.getElementById(elementId);
-            if(targetBtn) {
-                let originalText = targetBtn.innerText;
-                targetBtn.disabled = true;
-                targetBtn.style.filter = "grayscale(1)";
-                
-                let timeRemaining = durationMs / 1000;
-                let ticker = setInterval(() => {
-                    timeRemaining--;
-                    targetBtn.innerText = `${textFeedback} (${timeRemaining}s)`;
-                    if(timeRemaining <= 0) {
-                        clearInterval(ticker);
-                        targetBtn.disabled = false;
-                        targetBtn.innerText = originalText;
-                        targetBtn.style.filter = "none";
-                    }
-                }, 1000);
-            }
-        }
-
-        function runStandardVideoAd() {
-            if(processAntiCheatLockout()) return;
-            if(counterAdsToday >= SYSTEM_DAILY_CAP) { alert("Daily balance caps fulfilled."); return; }
-            
-            let isAdInventoryAvailable = Math.random() > 0.15;
-            if (!isAdInventoryAvailable) {
-                alert("Sorry, no ads available. Try again later.");
-                return;
-            }
-            
-            openModal('modalAdPlayer');
-            let timeRemaining = 15;
-            let clockDisplay = document.getElementById('adWindowCountdownClock');
-            clockDisplay.innerText = timeRemaining;
-
-            adPlaybackTimerReference = setInterval(() => {
-                timeRemaining--;
-                clockDisplay.innerText = timeRemaining;
-                if(timeRemaining <= 0) {
-                    clearInterval(adPlaybackTimerReference);
-                    closeModal('modalAdPlayer');
-                    counterAdsToday++;
-                    walletBalance += 1;
-                    refreshAppLayoutMetrics();
-                    alert("Ad Stream Checked Out: +1 Coin added successfully!");
-                }
-            }, 1000);
-        }
-
-        function abandonActiveAdStream() {
-            if(adPlaybackTimerReference) {
-                clearInterval(adPlaybackTimerReference);
-            }
-            closeModal('modalAdPlayer');
-            alert("Transaction Denied: Ad closed too early. 0 coins credited.");
-        }
-
-        function runDailyCheckIn() {
-            if(processAntiCheatLockout()) return;
-            let currentCalendarDate = new Date().toISOString().slice(0,10);
-            if(lastLoggedCheckIn === currentCalendarDate) { alert("Daily check-in completed already."); return; }
-            implementTemporaryCooldown('btnCheckIn', 'Validating Streak Logs', 4000);
-            setTimeout(() => {
-                lastLoggedCheckIn = currentCalendarDate;
-                localStorage.setItem('last_check_in_date', lastLoggedCheckIn);
-                counterAdsToday++;
-                walletBalance += 5;
-                refreshAppLayoutMetrics();
-                alert("Daily Check-In Saved! +5 Coins added.");
-            }, 4000);
-        }
-
-        function executeRedemption() {
-            if(processAntiCheatLockout()) return;
-            let targetUid = document.getElementById('playerUidInput').value.trim();
-            let gemCountTier = document.getElementById('prizeDropdown').value;
-            let matrixPricing = { "100": 200, "210": 400, "530": 1000, "1080": 2000 };
-            let finalCostValue = matrixPricing[gemCountTier];
-
-            if(!targetUid) { alert("Input error: UID target cannot be empty."); return; }
-            if(walletBalance < finalCostValue) { alert(`Insufficient balance. Requires ${finalCostValue} coins.`); return; }
-            
-            implementTemporaryCooldown('btnExchange', 'Routing Safe Channels', 5000);
-            setTimeout(() => {
-                walletBalance -= finalCostValue;
-                let dateStrToday = new Date().toLocaleDateString();
-                transactionHistoryList.unshift({ itemTitle: "Diamonds Pack", amt: gemCountTier, uid: targetUid, dateStr: dateStrToday });
-                refreshAppLayoutMetrics();
-
-                let adminTargetEmail = "freediamondsgarena7@gmail.com";
-                let emailSubjectLine = encodeURIComponent(`NEW REWARD ORDER: ${gemCountTier} Diamonds Pack`);
-                let emailBodyText = encodeURIComponent(`Player Nickname: ${storedUserNickname}\nPlayer UID: ${targetUid}\nPackage Selection: ${gemCountTier} Free Fire Diamonds\nRequest Date: ${dateStrToday}\nStatus: Pending Hold Queue`);
-                window.location.href = `mailto:${adminTargetEmail}?subject=${emailSubjectLine}&body=${emailBodyText}`;
-            }, 5000);
-        }
-
-        function dispatchSupportEmail() {
-            let msgContent = document.getElementById('supportTextInput').value.trim();
-            if(!msgContent) { alert("Support context text input cannot be blank."); return; }
-            let targetAdminEmail = "freediamondsgarena7@gmail.com";
-            window.location.href = `mailto:${targetAdminEmail}?subject=FireRewards%20Support%20Ticket&body=%5BSupport%20Log%5D%20${encodeURIComponent(msgContent)}`;
-            document.getElementById('supportTextInput').value = "";
-            closeModal('modalSupport');
-        }
-
-        function toggleAppThemeStyle() {
-            let choiceValue = document.getElementById('themeToggle').value;
-            if(choiceValue === 'light') document.body.classList.add('light-theme');
-            else document.body.classList.remove('light-theme');
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        // --- GAME 1: JUMP BLOCK ARENA ---
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        let blockActive = false;
-        let playerY = 110; let playerVelocityY = 0; let playerIsJumping = false;
-        let obstacleX = 320; let obstacleSpeed = 2.0; let blockScore = 0;
-        let blockHighScore = parseInt(localStorage.getItem('block_high_score')) || 0;
-
-        canvas.addEventListener('click', (e) => {
-            e.preventDefault();
-            if(blockActive && !playerIsJumping) { playerVelocityY = -5.0; playerIsJumping = true; }
-        });
-
-        function triggerBlockGameLaunch() {
-            document.getElementById('blockStartMenu').style.display = 'none';
-            document.getElementById('blockGameOverMenu').style.display = 'none';
-            blockScore = 0;
-            obstacleX = 320;
-            obstacleSpeed = 2.0;
-            playerY = 110;
-            blockActive = true;
-        }
-
-        function gameEngineTick() {
-            if (blockActive) {
-                playerVelocityY += 0.22; playerY += playerVelocityY;
-                if (playerY >= 110) { playerY = 110; playerVelocityY = 0; playerIsJumping = false; }
-                obstacleX -= obstacleSpeed;
-                if (obstacleX < -15) {
-                    obstacleX = 320; blockScore++; obstacleSpeed += 0.15;
-                }
-                if (obstacleX > 30 && obstacleX < 50 && playerY > 95) { 
-                    blockActive = false;
-                    if(blockScore > blockHighScore) {
-                        blockHighScore = blockScore;
-                        localStorage.setItem('block_high_score', blockHighScore);
-                    }
-                    document.getElementById('blockScoresDisplay').innerText = `Score: ${blockScore} | Record High: ${blockHighScore}`;
-                    document.getElementById('blockGameOverMenu').style.display = 'flex';
-                }
-            }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "#333"; ctx.beginPath(); ctx.moveTo(0, 125); ctx.lineTo(300, 125); ctx.stroke();
-            ctx.fillStyle = "#ff9f43"; ctx.fillRect(35, playerY, 15, 15);
-            ctx.fillStyle = "#ff4d4d"; ctx.fillRect(obstacleX, 105, 12, 20);
-            ctx.fillStyle = "#ffffff"; ctx.font = "11px monospace"; ctx.fillText(`SCORE: ${blockScore}`, 10, 20);
-            requestAnimationFrame(gameEngineTick);
-        }
-
-        // --- GAME 2: COMPETITIVE DIAMOND RUSH CATCHER ---
-        const catcherCanvas = document.getElementById("catcherCanvas");
-        const cCtx = catcherCanvas.getContext("2d");
-        let catcherActive = false;
-        let basketX = 130; let diamondX = Math.random() * 280; let diamondY = 0; let diamondSpeed = 1.5; let catcherScore = 0;
-        let catcherHighScore = parseInt(localStorage.getItem('catcher_high_score')) || 0;
-
-        catcherCanvas.addEventListener('click', (e) => {
-            e.preventDefault();
-            if(!catcherActive) return;
-            const rect = catcherCanvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            if(clickX < rect.width / 2) { basketX = Math.max(0, basketX - 25); } 
-            else { basketX = Math.min(260, basketX + 25); }
-        });
-
-        function triggerCatcherGameLaunch() {
-            document.getElementById('catcherStartMenu').style.display = 'none';
-            document.getElementById('catcherGameOverMenu').style.display = 'none';
-            catcherScore = 0;
-            diamondY = 0;
-            diamondX = Math.random() * 270;
-            diamondSpeed = 1.5;
-            basketX = 130;
-            catcherActive = true;
-        }
-
-        function catcherEngineTick() {
-            if (catcherActive) {
-                diamondY += diamondSpeed;
-                if(diamondY >= 145) {
-                    catcherActive = false;
-                    if (catcherScore > catcherHighScore) {
-                        catcherHighScore = catcherScore;
-                        localStorage.setItem('catcher_high_score', catcherHighScore);
-                    }
-                    document.getElementById('catcherScoresDisplay').innerText = `Score: ${catcherScore} | Record High: ${catcherHighScore}`;
-                    document.getElementById('catcherGameOverMenu').style.display = 'flex';
-                }
-                else if(diamondY >= 130 && diamondY <= 140) {
-                    if(diamondX > basketX - 10 && diamondX < basketX + 45) {
-                        catcherScore++; 
-                        diamondSpeed += 0.12;
-                        diamondY = 0; 
-                        diamondX = Math.random() * 270;
-                        
-                        if(catcherScore % 10 === 0 && counterAdsToday < SYSTEM_DAILY_CAP && navigator.onLine) {
-                            counterAdsToday++; walletBalance += 1; refreshAppLayoutMetrics();
-                        }
-                    }
-                }
-            }
-            cCtx.clearRect(0, 0, catcherCanvas.width, catcherCanvas.height);
-            cCtx.strokeStyle = "#333"; cCtx.beginPath(); cCtx.moveTo(0, 145); cCtx.lineTo(300, 145); cCtx.stroke();
-            cCtx.fillStyle = "#00d2d3"; cCtx.beginPath(); cCtx.arc(diamondX, diamondY, 6, 0, Math.PI * 2); cCtx.fill();
-            cCtx.fillStyle = "#ff9f43"; cCtx.fillRect(basketX, 135, 40, 10);
-            cCtx.fillStyle = "#ffffff"; cCtx.font = "11px monospace"; cCtx.fillText(`DIAMONDS: ${catcherScore}`, 10, 20);
-            requestAnimationFrame(catcherEngineTick);
-        }
-
-        gameEngineTick();
-        catcherEngineTick();
     </script>
+
 </body>
 </html>
