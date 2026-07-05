@@ -197,6 +197,7 @@
             transition: width 0.4s ease;
         }
 
+        /* Remodeled Avatar Interactive Systems */
         .avatar-uploader {
             width: 90px;
             height: 90px;
@@ -213,12 +214,6 @@
             background-size: cover;
             background-position: center;
         }
-        .avatar-uploader span {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            padding: 5px;
-        }
 
         .profile-badge {
             display: flex;
@@ -227,12 +222,58 @@
             margin-bottom: 20px;
         }
         .profile-badge .user-img {
-            width: 46px;
-            height: 46px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #333;
             background-size: cover;
             background-position: center;
+            cursor: pointer;
+            border: 2px solid var(--accent-cyan);
+        }
+
+        /* Avatar Selection Layout Matrix */
+        .avatar-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .avatar-option-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid transparent;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .avatar-option-node:hover {
+            transform: scale(1.05);
+        }
+        .avatar-option-node.selected-node {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 210, 211, 0.5);
+        }
+
+        .keep-signed-in-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        .keep-signed-in-container input {
+            width: auto;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        .keep-signed-in-container label {
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
         }
 
         .dev-badge-card {
@@ -447,25 +488,33 @@
             <p style="color: var(--text-muted); font-size: 14px;">Secure Processing System Nodes</p>
         </div>
 
-        <!-- LOGIN FORM: Completely stripped of the Google Button & Separator Line -->
+        <!-- LOGIN FORM -->
         <div class="card" id="loginCardContainer">
             <div class="section-title">Account Sign In</div>
-            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Sign in to sync your diamond rewards database across nodes.</p>
+            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;" id="loginInstructionText">Sign in to sync your diamond rewards database across nodes.</p>
 
-            <input type="email" id="authEmailInput" placeholder="Enter Account Email Address" style="-webkit-user-select: text; user-select: text;">
-            <input type="password" id="authPasswordInput" placeholder="Enter Security Password" style="-webkit-user-select: text; user-select: text;">
+            <div id="manualCredentialInputs">
+                <input type="email" id="authEmailInput" placeholder="Enter Account Email Address" style="-webkit-user-select: text; user-select: text;">
+                <input type="password" id="authPasswordInput" placeholder="Enter Security Password" style="-webkit-user-select: text; user-select: text;">
+                
+                <!-- Keep Me Signed In Checkbox UI -->
+                <div class="keep-signed-in-container">
+                    <input type="checkbox" id="keepSignedInCheck">
+                    <label for="keepSignedInCheck">Keep me signed in on this node</label>
+                </div>
+            </div>
             
             <!-- Standard dynamic reCAPTCHA layout container (Index 0) -->
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
                 <div class="g-recaptcha" data-theme="dark" data-sitekey="6LfAl0ItAAAAALWGLfnOVj47bj8Rlj-iteZ19qys"></div>
             </div>
 
-            <button class="btn-cyan" onclick="handleManualEmailAuth()">Secure Account Sign In</button>
+            <button class="btn-cyan" id="authSubmitActionBtn" onclick="handleManualEmailAuth()">Secure Account Sign In</button>
             
-            <p style="font-size: 13px; text-align: center; margin-top: 10px;">
+            <p style="font-size: 13px; text-align: center; margin-top: 10px;" id="registerPromptRow">
                 Don't have an account? <a href="#" onclick="toggleAuthForms('signup')" style="color: var(--accent-cyan); text-decoration: none; font-weight: bold;">Register Here</a>
             </p>
-            <p style="font-size: 12px; text-align: center; margin-top: 10px;"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
+            <p style="font-size: 12px; text-align: center; margin-top: 10px;" id="forgotPromptRow"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
         </div>
 
         <!-- REGISTRATION FORM -->
@@ -509,10 +558,11 @@
         <div class="card" id="mainIdentityGate" style="display: none;">
             <div id="nameSetupSection">
                 <div class="section-title">Setup Permanent Identity Profile</div>
-                <div class="avatar-uploader" id="loginAvatarBox" onclick="document.getElementById('avatarFileInput').click()">
-                    <span id="uploaderPrompt">Tap to<br>Add Photo</span>
+                
+                <!-- Digital AI Avatar Selector Box Wrapper -->
+                <div class="avatar-uploader" id="loginAvatarBox" onclick="openModal('modalAvatarSelector')">
+                    <div style="font-size: 11px; color: var(--text-muted); text-align: center;">Tap to<br>Choose Avatar</div>
                 </div>
-                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="processAvatarImage(event)">
                 <input type="text" id="loginUser" placeholder="Choose Unique Player Username" style="-webkit-user-select: text; user-select: text;">
             </div>
             
@@ -526,7 +576,7 @@
         <!-- TAB: HOME -->
         <div id="viewHome" class="app-view">
             <div class="profile-badge">
-                <div class="user-img id-avatar-display"></div>
+                <div class="user-img id-avatar-display" onclick="openModal('modalAvatarSelector')"></div>
                 <div>
                     <h3 id="profileIdLabel" style="font-size: 16px;">Player</h3>
                     <small style="color: var(--accent-gold); font-weight: bold;" id="welcomeBackTag">Welcome Back!</small>
@@ -727,6 +777,24 @@
 
     </div>
 
+    <!-- AVATAR SELECTION MODAL LAYER -->
+    <div id="modalAvatarSelector" class="modal-overlay">
+        <div class="modal-box">
+            <div class="section-title">Choose Avatar</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">Select an AI gaming persona for your operational nodes</p>
+            
+            <!-- Grid Layout representing 1000473240.jpg and 1000473241.jpg -->
+            <div class="avatar-selection-grid" id="avatarGridContainer">
+                <!-- Dynamically populated choices injected here -->
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button style="background: #444; margin-bottom:0;" onclick="closeModal('modalAvatarSelector')">Cancel</button>
+                <button class="btn-cyan" style="margin-bottom:0;" onclick="saveSelectedAvatarChoice()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SYSTEM MODALS -->
     <div id="modalSupport" class="modal-overlay">
         <div class="modal-box">
@@ -799,10 +867,27 @@
         let storedUserNickname = "";
         
         const SYSTEM_DAILY_CAP = 25; 
-        let profilePhotoDataUrl = localStorage.getItem('user_profile_photo') || "";
+        
+        // Open-source AI Generated Avatar Illustrations (SVG Format Nodes via Dicebear Open API)
+        const systemicAvatarsList = [
+            "https://api.dicebear.com/7.x/bottts/svg?seed=A1&backgroundColor=b6e3f4",
+            "https://api.dicebear.com/7.x/bottts/svg?seed=A2&backgroundColor=c0aede",
+            "https://api.dicebear.com/7.x/bottts/svg?seed=A3&backgroundColor=ffd5dc",
+            "https://api.dicebear.com/7.x/pixel-art/svg?seed=P1&backgroundColor=b6e3f4",
+            "https://api.dicebear.com/7.x/pixel-art/svg?seed=P2&backgroundColor=c0aede",
+            "https://api.dicebear.com/7.x/pixel-art/svg?seed=P3&backgroundColor=ffdfbf",
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=H1&backgroundColor=00d2d3",
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=H2&backgroundColor=ff9f43",
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=H3&backgroundColor=1e1b4b"
+        ];
+        
+        let localTemporaryAvatarChoice = systemicAvatarsList[0];
+        let finalizedActiveAvatarUrl = systemicAvatarsList[0];
+
         let adPlaybackTimerReference = null;
         let countdownTimerReference;
         let pendingUserInstance = null;
+        let autoLoginModeActive = false;
 
         const proTipsPool = [
             "Use a downed enemy as bait to lure their remaining teammates out into the open.",
@@ -887,6 +972,7 @@
                         lastLoggedCheckIn = data.lastCheckInDate || "";
                         transactionHistoryList = data.txHistory || [];
                         storedUserNickname = data.nickname || "";
+                        finalizedActiveAvatarUrl = data.avatarUrl || systemicAvatarsList[0];
                         
                         const adData = data.adWatchData || {};
                         counterAdsToday = (adData.lastWatchedDate === todayStr) ? (adData.count || 0) : 0;
@@ -905,25 +991,73 @@
                             adWatchData: { lastWatchedDate: todayStr, count: 0 },
                             lastCheckInDate: "",
                             txHistory: [],
-                            nickname: ""
+                            nickname: "",
+                            avatarUrl: finalizedActiveAvatarUrl
                         });
                         counterAdsToday = 0;
                         toggleAuthForms('identity');
                     }
                 });
             } else {
-                document.getElementById('appMainDock').style.display = 'none';
-                document.getElementById('viewLogin').style.display = 'block';
-                toggleAuthForms('login');
+                // Check if Auto-Login token exists
+                const rememberedUserToken = localStorage.getItem('fire_rewards_keep_signed');
+                if (rememberedUserToken === 'true') {
+                    autoLoginModeActive = true;
+                    setupAutoLoginCaptchaUI();
+                } else {
+                    document.getElementById('appMainDock').style.display = 'none';
+                    document.getElementById('viewLogin').style.display = 'block';
+                    toggleAuthForms('login');
+                }
             }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
             initTipsTickerSystem();
             populateSensitivitySelectors();
-            applyUIProfileImages();
+            generateAvatarSelectionGrid();
             checkNetworkValidity();
         });
+
+        // Configures the form layout for quick automatic captcha entry loops
+        function setupAutoLoginCaptchaUI() {
+            document.getElementById('manualCredentialInputs').style.display = 'none';
+            document.getElementById('registerPromptRow').style.display = 'none';
+            document.getElementById('forgotPromptRow').style.display = 'none';
+            document.getElementById('loginInstructionText').innerText = "Security Handshake Needed: Complete the reCAPTCHA box below to authorize auto-login.";
+            document.getElementById('authSubmitActionBtn').innerText = "Authorize & Synchronize Node";
+        }
+
+        function generateAvatarSelectionGrid() {
+            const container = document.getElementById('avatarGridContainer');
+            container.innerHTML = "";
+            systemicAvatarsList.forEach((url, idx) => {
+                const node = document.createElement('div');
+                node.className = `avatar-option-node ${idx === 0 ? 'selected-node' : ''}`;
+                node.style.backgroundImage = `url('${url}')`;
+                node.onclick = () => selectAvatarNodeOption(idx, url);
+                container.appendChild(node);
+            });
+        }
+
+        function selectAvatarNodeOption(index, url) {
+            localTemporaryAvatarChoice = url;
+            const elements = document.querySelectorAll('.avatar-option-node');
+            elements.forEach(el => el.classList.remove('selected-node'));
+            elements[index].classList.add('selected-node');
+        }
+
+        function saveSelectedAvatarChoice() {
+            finalizedActiveAvatarUrl = localTemporaryAvatarChoice;
+            applyUIProfileImages();
+            closeModal('modalAvatarSelector');
+            
+            // Sync choices straight to active Firebase database nodes
+            const user = auth.currentUser;
+            if (user) {
+                database.ref('users/' + user.uid).update({ avatarUrl: finalizedActiveAvatarUrl });
+            }
+        }
 
         function toggleAuthForms(targetView) {
             document.getElementById('loginCardContainer').style.display = 'none';
@@ -973,6 +1107,29 @@
         function handleManualEmailAuth() {
             if(processAntiCheatLockout()) return;
             
+            let checkCaptchaToken = grecaptcha.getResponse(0);
+            if(!checkCaptchaToken || checkCaptchaToken.length === 0) {
+                alert("Security block: Complete the 'Are you a robot' checkbox check.");
+                return;
+            }
+
+            // Route via auto-login handling logic chains
+            if (autoLoginModeActive) {
+                grecaptcha.reset(0);
+                // Prompt Firebase instance tracking updates via persistence vectors
+                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                    .then(() => {
+                        if (auth.currentUser) {
+                            launchMainCoreApplication();
+                        } else {
+                            autoLoginModeActive = false;
+                            localStorage.removeItem('fire_rewards_keep_signed');
+                            window.location.reload();
+                        }
+                    });
+                return;
+            }
+
             let emailValue = document.getElementById('authEmailInput').value.trim();
             let passwordValue = document.getElementById('authPasswordInput').value;
             
@@ -981,14 +1138,18 @@
                 return;
             }
 
-            let checkCaptchaToken = grecaptcha.getResponse(0);
-            if(!checkCaptchaToken || checkCaptchaToken.length === 0) {
-                alert("Security block: Complete the 'Are you a robot' checkbox check.");
-                return;
-            }
+            const keepSignedInChecked = document.getElementById('keepSignedInCheck').checked;
 
-            auth.signInWithEmailAndPassword(emailValue, passwordValue)
-                .then(() => { grecaptcha.reset(0); })
+            auth.setPersistence(keepSignedInChecked ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
+                .then(() => {
+                    return auth.signInWithEmailAndPassword(emailValue, passwordValue);
+                })
+                .then(() => { 
+                    if (keepSignedInChecked) {
+                        localStorage.setItem('fire_rewards_keep_signed', 'true');
+                    }
+                    grecaptcha.reset(0); 
+                })
                 .catch((error) => alert("Error: " + error.message));
         }
 
@@ -1080,35 +1241,22 @@
         }
 
         function performAppLogout() {
+            localStorage.removeItem('fire_rewards_keep_signed');
             auth.signOut().then(() => {
                 alert("Session disconnected safely.");
+                window.location.reload();
             });
         }
 
-        function processAvatarImage(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profilePhotoDataUrl = e.target.result;
-                    localStorage.setItem('user_profile_photo', profilePhotoDataUrl);
-                    applyUIProfileImages();
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
         function applyUIProfileImages() {
-            if(profilePhotoDataUrl) {
-                const box = document.getElementById('loginAvatarBox');
-                if(box) {
-                    box.innerHTML = "";
-                    box.style.backgroundImage = `url(${profilePhotoDataUrl})`;
-                }
-                document.querySelectorAll('.id-avatar-display').forEach(el => {
-                    el.style.backgroundImage = `url(${profilePhotoDataUrl})`;
-                });
+            const box = document.getElementById('loginAvatarBox');
+            if(box) {
+                box.innerHTML = "";
+                box.style.backgroundImage = `url('${finalizedActiveAvatarUrl}')`;
             }
+            document.querySelectorAll('.id-avatar-display').forEach(el => {
+                el.style.backgroundImage = `url('${finalizedActiveAvatarUrl}')`;
+            });
         }
 
         function validateLoginGate() {
@@ -1118,11 +1266,14 @@
             
             const user = auth.currentUser;
             if (user) {
-                database.ref('users/' + user.uid).update({ nickname: nameInput })
-                    .then(() => {
-                        storedUserNickname = nameInput;
-                        launchMainCoreApplication();
-                    });
+                database.ref('users/' + user.uid).update({ 
+                    nickname: nameInput,
+                    avatarUrl: finalizedActiveAvatarUrl 
+                })
+                .then(() => {
+                    storedUserNickname = nameInput;
+                    launchMainCoreApplication();
+                });
             }
         }
 
@@ -1131,6 +1282,7 @@
             document.getElementById('appMainDock').style.display = 'block';
             document.getElementById('profileIdLabel').innerText = storedUserNickname;
             document.getElementById('welcomeBackTag').innerText = `Welcome Back, ${storedUserNickname}!`;
+            applyUIProfileImages();
             
             const user = auth.currentUser;
             database.ref('users/' + user.uid).on('value', (snapshot) => {
@@ -1141,6 +1293,7 @@
                     walletBalance = data.coins || 0;
                     lastLoggedCheckIn = data.lastCheckInDate || "";
                     transactionHistoryList = data.txHistory || [];
+                    finalizedActiveAvatarUrl = data.avatarUrl || systemicAvatarsList[0];
                     
                     const adData = data.adWatchData || {};
                     counterAdsToday = (adData.lastWatchedDate === todayStr) ? (adData.count || 0) : 0;
@@ -1152,6 +1305,7 @@
                     let percentageRatio = (walletBalance / 200) * 100;
                     document.getElementById('progressBar').style.width = `${Math.min(percentageRatio, 100)}%`;
                     
+                    applyUIProfileImages();
                     renderHistoryLogSheets();
                 }
             });
@@ -1166,7 +1320,8 @@
                     coins: walletBalance,
                     adWatchData: { lastWatchedDate: todayStr, count: counterAdsToday },
                     lastCheckInDate: lastLoggedCheckIn,
-                    txHistory: transactionHistoryList
+                    txHistory: transactionHistoryList,
+                    avatarUrl: finalizedActiveAvatarUrl
                 });
             }
         }
@@ -1369,6 +1524,7 @@
             user.reauthenticateWithCredential(credential).then(() => {
                 database.ref('users/' + user.uid).remove().then(() => {
                     user.delete().then(() => {
+                        localStorage.removeItem('fire_rewards_keep_signed');
                         alert("Account structure successfully scrubbed.");
                         window.location.reload();
                     }).catch(err => alert(`Auth Deletion Protocol Failed: ${err.message}`));
@@ -1489,7 +1645,7 @@
             cCtx.clearRect(0, 0, catcherCanvas.width, catcherCanvas.height);
             cCtx.strokeStyle = "#333"; cCtx.beginPath(); cCtx.moveTo(0, 145); cCtx.lineTo(300, 145); cCtx.stroke();
             cCtx.fillStyle = "#00d2d3"; cCtx.beginPath(); cCtx.arc(diamondX, diamondY, 6, 0, Math.PI * 2); cCtx.fill();
-            cCtx.fillStyle = "#ff9f43"; cCtx.fillRect(basketX, 135, 40, 10);
+            cCtx.fillStyle = "#ff9f43"; ctx.fillRect(basketX, 135, 40, 10);
             cCtx.fillStyle = "#ffffff"; cCtx.font = "11px monospace"; cCtx.fillText(`DIAMONDS: ${catcherScore}`, 10, 20);
             requestAnimationFrame(catcherEngineTick);
         }
