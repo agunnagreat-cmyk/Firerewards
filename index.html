@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FireRewards Production Core</title>
     
-    <!-- Explicitly load the Google reCAPTCHA API -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    <!-- Firebase SDK Modules -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -698,13 +696,11 @@
 </head>
 <body>
 
-    <!-- OVERLAY: FIXED DYNAMIC LOADING SCREEN COMPONENT -->
     <div id="globalDynamicLoadingLayer">
         <div class="app-loading-wrapper">
             <div class="app-logo-wrapper">
                 <div class="arc-cyan-spinner"></div>
                 <div class="arc-orange-spinner"></div>
-                <!-- Updated dynamic image binding mapped directly to required image resource -->
                 <img src="1000467970.jpg" alt="FireRewards Systems Icon Logo" onerror="this.src='https://via.placeholder.com/110/1a1a1e/00d2d3?text=FR'">
             </div>
             <div class="app-load-title">FireRewards</div>
@@ -717,13 +713,11 @@
 
     <div id="viewLogin" class="app-view active-view">
         <div style="text-align: center; margin: 40px 0 20px 0;">
-            <!-- Main login system header logo reference node -->
             <img src="1000467970.jpg" alt="FireRewards" style="width:70px; height:70px; border-radius:50%; object-fit:contain; margin-bottom:10px; box-shadow:0 4px 10px rgba(0,0,0,0.4);" onerror="this.style.display='none'">
             <h1 style="color: var(--accent-gold); font-size: 32px; font-weight: 800;">FireRewards</h1>
             <p style="color: var(--text-muted); font-size: 14px;">Secure Processing System Nodes</p>
         </div>
 
-        <!-- LOGIN FORM -->
         <div class="card" id="loginCardContainer">
             <div class="section-title">Account Sign In</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;" id="loginInstructionText">Sign in to sync your diamond rewards database across nodes.</p>
@@ -750,7 +744,6 @@
             <p style="font-size: 12px; text-align: center; margin-top: 10px;" id="forgotPromptRow"><a href="#" onclick="openModal('modalRecovery')" style="color: var(--accent-gold); text-decoration: none;">Forgot Password Details?</a></p>
         </div>
 
-        <!-- REGISTRATION FORM -->
         <div class="card" id="signupCardContainer" style="display: none;">
             <div class="section-title">Create New Account</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">Register with a valid email to track and save your reward points status securely.</p>
@@ -758,8 +751,6 @@
             <input type="email" id="regEmailInput" placeholder="Enter Valid Email Address" style="-webkit-user-select: text; user-select: text;">
             <input type="password" id="regPasswordInput" placeholder="Create Secure Password (min 6 chars)" style="-webkit-user-select: text; user-select: text;">
             <input type="password" id="regPasswordConfirmInput" placeholder="Confirm Secure Password" style="-webkit-user-select: text; user-select: text;">
-            
-            <!-- Structural Referral Code entry point hook during initial enrollment mapping -->
             <input type="text" id="regReferralInput" placeholder="Referral Code (Optional)" style="-webkit-user-select: text; user-select: text;">
 
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
@@ -773,7 +764,6 @@
             </p>
         </div>
 
-        <!-- EMAIL VERIFICATION VIEW -->
         <div class="card" id="emailVerifyCardContainer" style="display: none; text-align: center;">
             <div class="section-title" style="color: var(--accent-cyan);">Verify Your Email Node</div>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; line-height: 1.4;">
@@ -789,7 +779,6 @@
             <button style="background: transparent; color: var(--text-muted); font-size: 12px; margin-top: 5px;" onclick="cancelVerificationFlow()">Back to Login Form</button>
         </div>
 
-        <!-- IDENTITY CREATION OVERLAY -->
         <div class="card" id="mainIdentityGate" style="display: none;">
             <div id="nameSetupSection">
                 <div class="section-title">Setup Permanent Identity Profile</div>
@@ -804,10 +793,8 @@
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER DOCK -->
     <div id="appMainDock" style="display: none;">
 
-        <!-- TAB: HOME -->
         <div id="viewHome" class="app-view">
             <div class="profile-badge">
                 <div class="user-img id-avatar-display" onclick="openModal('modalAvatarSelector')"></div>
@@ -852,13 +839,11 @@
                 </p>
             </div>
 
-            <!-- REMODELED ORDER DISTRIBUTION TERMINAL MAPPED FROM 1000475486.JPG PRICE ARRAYS -->
             <div class="card">
                 <div class="section-title">Order Distribution Terminal</div>
                 <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 10px;">Select Diamonds Package Premium Card:</label>
                 
                 <div class="premium-shop-grid">
-                    <!-- Lite Package: 100 Diamonds = 200 Coins -->
                     <div class="premium-redeem-card selected-shop-card" id="pkg-card-100" onclick="selectRedemptionPackageTier('100', 200)">
                         <div class="card-visual-info">
                             <div class="diamond-badge-vector">
@@ -875,7 +860,6 @@
                         </div>
                     </div>
 
-                    <!-- Royal Package: 210 Diamonds = 400 Coins -->
                     <div class="premium-redeem-card" id="pkg-card-210" onclick="selectRedemptionPackageTier('210', 400)">
                         <div class="card-visual-info">
                             <div class="diamond-badge-vector">
@@ -892,7 +876,6 @@
                         </div>
                     </div>
 
-                    <!-- Epic Package: 530 Diamonds = 1000 Coins -->
                     <div class="premium-redeem-card" id="pkg-card-530" onclick="selectRedemptionPackageTier('530', 1000)">
                         <div class="card-visual-info">
                             <div class="diamond-badge-vector">
@@ -909,7 +892,6 @@
                         </div>
                     </div>
 
-                    <!-- Supreme Package: 1080 Diamonds = 2000 Coins -->
                     <div class="premium-redeem-card" id="pkg-card-1080" onclick="selectRedemptionPackageTier('1080', 2000)">
                         <div class="card-visual-info">
                             <div class="diamond-badge-vector">
@@ -938,7 +920,6 @@
             </div>
         </div>
 
-        <!-- TAB: HISTORY -->
         <div id="viewHistory" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">Exchange History</h2>
             <div class="card">
@@ -950,7 +931,6 @@
             </div>
         </div>
 
-        <!-- TAB: SETTINGS -->
         <div id="viewSettings" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">System Settings</h2>
             
@@ -981,11 +961,9 @@
             </div>
         </div>
 
-        <!-- TAB: TOOLKIT / HUB -->
         <div id="viewProfile" class="app-view">
             <h2 style="margin-bottom: 15px; font-weight: 800;">Gaming Station Hub</h2>
             
-            <!-- STREAMLINED REFERRAL LIVE TRACKING STATION HUB -->
             <div class="card">
                 <div class="section-title" style="color: var(--accent-cyan);">Referral Network Center</div>
                 <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
@@ -1069,7 +1047,6 @@
             </div>
         </div>
 
-        <!-- FOOTER NAVIGATION DOCK -->
         <div class="navigation-dock">
             <div class="nav-tab active-tab" onclick="switchTab('Home', this)">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -1088,10 +1065,8 @@
                 <span>Toolkit</span>
             </div>
         </div>
-
     </div>
 
-    <!-- AVATAR SELECTION MODAL LAYER -->
     <div id="modalAvatarSelector" class="modal-overlay">
         <div class="modal-box">
             <div class="section-title">Choose Avatar</div>
@@ -1104,7 +1079,6 @@
         </div>
     </div>
 
-    <!-- SYSTEM MODALS -->
     <div id="modalSupport" class="modal-overlay">
         <div class="modal-box">
             <div class="section-title">System Support Desk</div>
@@ -1152,7 +1126,7 @@
     </div>
 
     <script>
-        // --- LOADING ARCHITECTURE CONTROL LOGIC ---
+        // --- LOADING CONTROL MATRIX ---
         const appStatusPhrases = [
             "Initializing security protocols...",
             "Connecting to secure processing nodes...",
@@ -1197,7 +1171,6 @@
             measurementId: "G-STPXSFVGB6"
         };
 
-        // Initialize Live Databases
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
@@ -1208,13 +1181,11 @@
         let transactionHistoryList = [];
         let storedUserNickname = "";
         
-        // Referral runtime parameters tracking variables
         let myReferralCode = "";
         let invitedMilestoneCount = 0;
         let totalCommissionsEarned = 0;
         let parentReferrerCode = ""; 
         
-        // Active Selection states for custom package cards
         let currentSelectedDiamonds = "100";
         let currentSelectedCost = 200;
         
@@ -1303,7 +1274,7 @@
             { name: "Asus ROG Phone 9 / 9 Pro (2025)", gen: 100, dot: 98, x2: 98, x4: 95, snp: 42, cam: 90 }
         ];
 
-        // Global Firebase Authentication Listener
+        // Global Dynamic Auth Sync Listener Matrix
         auth.onAuthStateChanged((user) => {
             if (user) {
                 if (!user.emailVerified) {
@@ -1325,7 +1296,6 @@
                         storedUserNickname = data.nickname || "";
                         finalizedActiveAvatarUrl = data.avatarUrl || systemicAvatarsList[0];
                         
-                        // Referral parsing vectors 
                         myReferralCode = data.referralCode || user.uid.substring(0, 7).toUpperCase();
                         invitedMilestoneCount = data.invitedMilestoneCount || 0;
                         totalCommissionsEarned = data.totalCommissionsEarned || 0;
@@ -1334,7 +1304,7 @@
                         const adData = data.adWatchData || {};
                         counterAdsToday = (adData.lastWatchedDate === todayStr) ? (adData.count || 0) : 0;
                         
-                        if (storedUserNickname === "") {
+                        if (!storedUserNickname || storedUserNickname === "") {
                             document.getElementById('viewLogin').style.display = 'block';
                             document.getElementById('appMainDock').style.display = 'none';
                             toggleAuthForms('identity');
@@ -1342,7 +1312,6 @@
                             launchMainCoreApplication();
                         }
                     } else {
-                        // Create user with complete standard structural attributes
                         const createdCode = user.uid.substring(0, 7).toUpperCase();
                         const typedReferrer = document.getElementById('regReferralInput').value.trim().toUpperCase();
 
@@ -1359,12 +1328,14 @@
                             totalCommissionsEarned: 0,
                             parentReferrerCode: typedReferrer,
                             adMilestoneClaimed: false
+                        }).then(() => {
+                            myReferralCode = createdCode;
+                            parentReferrerCode = typedReferrer;
+                            counterAdsToday = 0;
+                            document.getElementById('viewLogin').style.display = 'block';
+                            document.getElementById('appMainDock').style.display = 'none';
+                            toggleAuthForms('identity');
                         });
-                        
-                        myReferralCode = createdCode;
-                        parentReferrerCode = typedReferrer;
-                        counterAdsToday = 0;
-                        toggleAuthForms('identity');
                     }
                 });
             } else {
@@ -1645,12 +1616,10 @@
             currentSelectedDiamonds = diamonds;
             currentSelectedCost = cost;
             
-            // Clear current selection highlight aesthetics styles
             document.querySelectorAll('.premium-redeem-card').forEach(card => {
                 card.classList.remove('selected-shop-card');
             });
             
-            // Inject targeted class selection indicators
             document.getElementById(`pkg-card-${diamonds}`).classList.add('selected-shop-card');
         }
 
@@ -1672,7 +1641,6 @@
                     transactionHistoryList = data.txHistory || [];
                     finalizedActiveAvatarUrl = data.avatarUrl || systemicAvatarsList[0];
                     
-                    // Live interface mapping updates for Referral tracking components
                     myReferralCode = data.referralCode || user.uid.substring(0, 7).toUpperCase();
                     invitedMilestoneCount = data.invitedMilestoneCount || 0;
                     totalCommissionsEarned = data.totalCommissionsEarned || 0;
@@ -1692,7 +1660,6 @@
                     let percentageRatio = (walletBalance / 200) * 100;
                     document.getElementById('progressBar').style.width = `${Math.min(percentageRatio, 100)}%`;
                     
-                    // Trigger structural verification evaluations for child milestones
                     processReferrerMilestoneEvaluation(user.uid, data.adMilestoneClaimed);
                     
                     applyUIProfileImages();
@@ -1718,17 +1685,14 @@
             }
         }
 
-        // --- BACKEND REFERRAL MATRICES & COMMISSIONS HANDLING ENGINE ---
         function processReferrerMilestoneEvaluation(myUid, alreadyClaimed) {
             if (alreadyClaimed || parentReferrerCode === "") return;
             
-            // Check if this child has reached the required 30 ad streams threshold
             if (counterAdsToday >= 30 || (transactionHistoryList && transactionHistoryList.length > 0)) { 
                 database.ref('users').once('value', (snapshot) => {
                     const allUsers = snapshot.val();
                     for (let userId in allUsers) {
                         if (allUsers[userId].referralCode === parentReferrerCode) {
-                            // Target parent matching sequence found: Dispatch +10 coins award milestone
                             const parentCurrentCoins = allUsers[userId].coins || 0;
                             const parentCurrentCount = allUsers[userId].invitedMilestoneCount || 0;
                             
@@ -1737,7 +1701,6 @@
                                 invitedMilestoneCount: parentCurrentCount + 15
                             });
                             
-                            // Mark child milestone processed permanently to avoid infinite loop cycles
                             database.ref('users/' + myUid).update({ adMilestoneClaimed: true });
                             break;
                         }
@@ -1749,7 +1712,6 @@
         function distributeRedemptionCommissionToParent(costSpent) {
             if (parentReferrerCode === "") return;
             
-            // Calculate a exact 5% reward bonus matrix setup cut
             const commissionCalculated = Math.floor(costSpent * 0.05);
             if (commissionCalculated <= 0) return;
 
@@ -1769,8 +1731,6 @@
                 }
             });
         }
-
-        // --- END OF FIREBASE / REFERRAL MATRIX MODULES ---
 
         function initTipsTickerSystem() {
             let tickerBox = document.getElementById('liveTipsTicker');
@@ -1924,7 +1884,6 @@
             if(processAntiCheatLockout()) return;
             let targetUid = document.getElementById('playerUidInput').value.trim();
             
-            // Evaluates calculations straight from state choices selected by card inputs
             let finalCostValue = currentSelectedCost;
             let gemCountTier = currentSelectedDiamonds;
 
@@ -1944,7 +1903,6 @@
                 if(!transactionHistoryList) transactionHistoryList = [];
                 transactionHistoryList.unshift({ itemTitle: "Diamonds Pack", amt: gemCountTier, uid: targetUid, dateStr: dateStrToday });
                 
-                // Distribute 5% payout commission back up tracking lines to parent referrer reference node
                 distributeRedemptionCommissionToParent(finalCostValue);
                 
                 syncDataToFirebase();
@@ -1953,7 +1911,7 @@
                 let adminTargetEmail = "freediamondsgarena7@gmail.com";
                 let emailSubjectLine = encodeURIComponent(`NEW REWARD ORDER: ${gemCountTier} Diamonds Pack`);
                 let emailBodyText = encodeURIComponent(`Player Nickname: ${storedUserNickname}\nPlayer UID: ${targetUid}\nPackage Selection: ${gemCountTier} Free Fire Diamonds\nRequest Date: ${dateStrToday}\nStatus: Pending Hold Queue`);
-                window.location.href = `mailto:${adminTargetEmail}?subject=${emailSubjectLine}?body=${emailBodyText}`;
+                window.location.href = `mailto:${adminTargetEmail}?subject=${emailSubjectLine}&body=${emailBodyText}`;
             }, 5000);
         }
 
