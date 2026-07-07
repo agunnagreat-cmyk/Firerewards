@@ -1160,6 +1160,7 @@
         }, 6000);
 
         // Project Firebase Config
+        // Ensure Firebase Security Rules are configured to prevent unauthorized coin modification
         const firebaseConfig = {
             apiKey: "AIzaSyDF61B5P2hgM3a5PyX0BHrTgGHs-sgAfV0",
             authDomain: "firerewards-c5438.firebaseapp.com",
@@ -1865,6 +1866,7 @@
             }
         }
 
+        // --- ENHANCED: PREPARED FOR REAL ADMOB SDK CALLS ---
         function runStandardVideoAd() {
             if(processAntiCheatLockout()) return;
             const todayStr = new Date().toISOString().split('T')[0];
@@ -1873,12 +1875,19 @@
                 return; 
             }
             
+            // [AdMob Integration Ready Placeholder]
+            // If wrapping your web code with Capacitor/Cordova, call your native AdMob plugin here 
+            // instead of opening the mock UI modal below.
+            // Example: AdMob.showRewardVideoAd().then(() => rewardUser());
+            console.log("Triggering Video Server Hook...");
+
             let isAdInventoryAvailable = Math.random() > 0.15;
             if (!isAdInventoryAvailable) {
-                alert("Sorry, no ads available. Try again later.");
+                alert("Sorry, no server ads available right now. Try again later.");
                 return;
             }
             
+            // Manual Fallback Mock UI for Testing Environment
             openModal('modalAdPlayer');
             let timeRemaining = 15;
             let clockDisplay = document.getElementById('adWindowCountdownClock');
@@ -1917,7 +1926,6 @@
             }, 4000);
         }
 
-        // Updated Terminal Exchange Router
         function executeRedemption() {
             if(processAntiCheatLockout()) return;
             let targetUid = document.getElementById('playerUidInput').value.trim();
