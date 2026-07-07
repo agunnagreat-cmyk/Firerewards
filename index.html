@@ -1372,8 +1372,12 @@
                             document.getElementById('viewLogin').style.display = 'block';
                             document.getElementById('appMainDock').style.display = 'none';
                             toggleAuthForms('identity');
+                        }).catch(err => {
+                            alert("Profile initialization failed: " + err.message);
                         });
                     }
+                }).catch(err => {
+                    alert("Database connection failed: " + err.message);
                 });
             } else {
                 const rememberedUserToken = localStorage.getItem('fire_rewards_keep_signed');
