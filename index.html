@@ -726,10 +726,7 @@
                 <input type="email" id="authEmailInput" placeholder="Enter Account Email Address" style="-webkit-user-select: text; user-select: text;">
                 <input type="password" id="authPasswordInput" placeholder="Enter Security Password" style="-webkit-user-select: text; user-select: text;">
                 
-                <div class="keep-signed-in-container">
-                    <input type="checkbox" id="keepSignedInCheck">
-                    <label for="keepSignedInCheck">Keep me signed in on this node</label>
-                </div>
+                
             </div>
             
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
@@ -1227,7 +1224,7 @@
         let adPlaybackTimerReference = null;
         let countdownTimerReference;
         let pendingUserInstance = null;
-        let autoLoginModeActive = false;
+        
 
         // Tracking separate references for each captcha box to stop the spam loop
         let loginWidgetId = null;
@@ -1238,12 +1235,11 @@
         // This function will be called automatically by reCAPTCHA once the script is ready
         window.onloadCallback = function() {
             if (typeof grecaptcha !== 'undefined') {
-                loginWidgetId = grecaptcha.render('captcha-login', { 'sitekey': siteKeyStr, 'theme': 'dark' });
-                signupWidgetId = grecaptcha.render('captcha-signup', { 'sitekey': siteKeyStr, 'theme': 'dark' });
-                
-                // Ensure this ID exists in your HTML before rendering
-                if(document.getElementById('captcha-terminal')) {
-                    terminalWidgetId = grecaptcha.render('captcha-terminal', { 'sitekey': siteKeyStr, 'theme': 'dark' });
+                if (document.getElementById('captcha-login')) {
+                    loginWidgetId = grecaptcha.render('captcha-login', { 'sitekey': siteKeyStr, 'theme': 'dark' });
+                }
+                if (document.getElementById('captcha-signup')) {
+                    signupWidgetId = grecaptcha.render('captcha-signup', { 'sitekey': siteKeyStr, 'theme': 'dark' });
                 }
             }
         };
@@ -1312,7 +1308,7 @@
         ];
 
         // Global Dynamic Auth Sync Listener Matrix
-        auth.onAuthStateChanged((user) => {
+                auth.onAuthStateChanged((user) => {
             if (user) {
                 if (!user.emailVerified) {
                     pendingUserInstance = user;
@@ -1372,12 +1368,16 @@
                             document.getElementById('viewLogin').style.display = 'block';
                             document.getElementById('appMainDock').style.display = 'none';
                             toggleAuthForms('identity');
-                        }).catch(err => {
-                            alert("Profile initialization failed: " + err.message);
                         });
                     }
-                }).catch(err => {
-                    alert("Database connection failed: " + err.message);
+                });
+            } else {
+                document.getElementById('appMainDock').style.display = 'none';
+                document.getElementById('viewLogin').style.display = 'block';
+                toggleAuthForms('login');
+            }
+        });
+                    }
                 });
             } else {
                 const rememberedUserToken = localStorage.getItem('fire_rewards_keep_signed');
@@ -1399,13 +1399,7 @@
             checkNetworkValidity();
         });
 
-        function setupAutoLoginCaptchaUI() {
-            document.getElementById('manualCredentialInputs').style.display = 'none';
-            document.getElementById('registerPromptRow').style.display = 'none';
-            document.getElementById('forgotPromptRow').style.display = 'none';
-            document.getElementById('loginInstructionText').innerText = "Security Handshake Needed: Complete the reCAPTCHA box below to authorize auto-login.";
-            document.getElementById('authSubmitActionBtn').innerText = "Authorize & Synchronize Node";
-        }
+        
 
         function generateAvatarSelectionGrid() {
             const container = document.getElementById('avatarGridContainer');
@@ -1483,14 +1477,36 @@
         }
 
         // Modified Core Authentication Handler
-        function handleManualEmailAuth() {
+                function handleManualEmailAuth() {
             if(processAntiCheatLockout()) return;
             
-            // Get token explicitly using the correct Widget ID link
             let checkCaptchaToken = '';
             if (loginWidgetId !== null) {
                 checkCaptchaToken = grecaptcha.getResponse(loginWidgetId);
             }
+
+            if(!checkCaptchaToken || checkCaptchaToken.length === 0) {
+                alert("Security block: Please complete the reCAPTCHA.");
+                return;
+            }
+
+            let emailValue = document.getElementById('authEmailInput').value.trim();
+            let passwordValue = document.getElementById('authPasswordInput').value;
+            
+            if(!emailValue || !passwordValue) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(emailValue, passwordValue)
+                .then(() => { 
+                    if (loginWidgetId !== null) grecaptcha.reset(loginWidgetId);
+                })
+                .catch((error) => {
+                    if (loginWidgetId !== null) grecaptcha.reset(loginWidgetId);
+                    alert("Sign-in failed: " + error.message);
+                });
+        }
 
             if(!checkCaptchaToken || checkCaptchaToken.length === 0) {
                 alert("Security block: Complete the 'Are you a robot' checkbox check.");
