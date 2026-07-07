@@ -730,7 +730,7 @@
             </div>
             
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <div id="captcha-login"></div>
+                <div id="captcha-login" style="min-height: 78px;"></div>
             </div>
 
             <button class="btn-cyan" id="authSubmitActionBtn" onclick="handleManualEmailAuth()">Secure Account Sign In</button>
@@ -751,7 +751,7 @@
             <input type="text" id="regReferralInput" placeholder="Referral Code (Optional)" style="-webkit-user-select: text; user-select: text;">
 
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <div id="captcha-signup"></div>
+                <div id="captcha-signup" style="min-height: 78px;"></div>
             </div>
 
             <button class="btn-gold" onclick="handleManualEmailRegistration()">Register Secure Node</button>
@@ -1185,6 +1185,27 @@
             appId: "1:16373936744:web:dc28aa438a1b25442341dd",
             measurementId: "G-STPXSFVGB6"
         };
+        // Fallback for reCAPTCHA rendering
+        function ensureCaptchaRendered() {
+            if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
+                if (loginWidgetId === null && document.getElementById('captcha-login')) {
+                    loginWidgetId = grecaptcha.render('captcha-login', { 'sitekey': siteKeyStr, 'theme': 'dark' });
+                }
+                if (signupWidgetId === null && document.getElementById('captcha-signup')) {
+                    signupWidgetId = grecaptcha.render('captcha-signup', { 'sitekey': siteKeyStr, 'theme': 'dark' });
+                }
+            }
+        }
+        // Check every second for 5 seconds
+        let renderAttempts = 0;
+        const renderInterval = setInterval(() => {
+            ensureCaptchaRendered();
+            renderAttempts++;
+            if (renderAttempts > 5 || (loginWidgetId !== null && signupWidgetId !== null)) {
+                clearInterval(renderInterval);
+            }
+        }, 1000);
+
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -1233,7 +1254,7 @@
         const siteKeyStr = "6LfAl0ItAAAAALWGLfnOVj47bj8Rlj-iteZ19qys";
 
         // This function will be called automatically by reCAPTCHA once the script is ready
-        window.onloadCallback = function() {
+        window.onloadCallback = function() { console.log("reCAPTCHA callback triggered");
             if (typeof grecaptcha !== 'undefined') {
                 if (document.getElementById('captcha-login')) {
                     loginWidgetId = grecaptcha.render('captcha-login', { 'sitekey': siteKeyStr, 'theme': 'dark' });
