@@ -1495,17 +1495,21 @@
 
             // Safe fallback clean handling for Auto Login Mode configurations
             if (autoLoginModeActive) {
-                if (loginWidgetId !== null) grecaptcha.reset(loginWidgetId);
-                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                    .then(() => {
-                        if (auth.currentUser) {
-                            launchMainCoreApplication();
-                        } else {
-                            autoLoginModeActive = false;
-                            localStorage.removeItem('fire_rewards_keep_signed');
-                            window.location.reload();
-                        }
-                    });
+                if (auth.currentUser) {
+                    if (loginWidgetId !== null) grecaptcha.reset(loginWidgetId);
+                    launchMainCoreApplication();
+                } else {
+                    // If no user session found, switch back to manual login instead of reloading
+                    autoLoginModeActive = false;
+                    localStorage.removeItem('fire_rewards_keep_signed');
+                    document.getElementById('manualCredentialInputs').style.display = 'block';
+                    document.getElementById('registerPromptRow').style.display = 'block';
+                    document.getElementById('forgotPromptRow').style.display = 'block';
+                    document.getElementById('loginInstructionText').innerText = "Session expired. Please sign in manually.";
+                    document.getElementById('authSubmitActionBtn').innerText = "Secure Account Sign In";
+                    if (loginWidgetId !== null) grecaptcha.reset(loginWidgetId);
+                    alert("Your session has expired. Please enter your credentials again.");
+                }
                 return;
             }
 
