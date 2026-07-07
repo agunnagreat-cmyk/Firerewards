@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FireRewards Production Core</title>
     
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -775,7 +775,6 @@
                 <div class="timer-text" id="cooldownTimerDisplay">60s</div>
             </div>
 
-            <button class="btn-gold" onclick="checkEmailVerificationStatus()">Check Verification Status Now</button>
             <button class="btn-cyan" id="resendEmailBtn" disabled onclick="sendVerificationAndRunTimer()">Resend Verification Link</button>
             <button style="background: transparent; color: var(--text-muted); font-size: 12px; margin-top: 5px;" onclick="cancelVerificationFlow()">Back to Login Form</button>
         </div>
@@ -940,6 +939,23 @@
                 <select id="themeToggle" onchange="toggleAppThemeStyle()">
                     <option value="dark">Dark Onyx Core Theme (Active)</option>
                     <option value="light">Light Slate Clean Theme</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Language Selection</div>
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="zh">中文</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="ar">العربية</option>
+                    <option value="pt">Português</option>
+                    <option value="ru">Русский</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
                 </select>
             </div>
 
@@ -1161,6 +1177,7 @@
         }, 6000);
 
         // Project Firebase Config
+        // Ensure Firebase Security Rules are configured to prevent unauthorized coin modification
         const firebaseConfig = {
             apiKey: "AIzaSyDF61B5P2hgM3a5PyX0BHrTgGHs-sgAfV0",
             authDomain: "firerewards-c5438.firebaseapp.com",
@@ -1178,7 +1195,6 @@
 
         let walletBalance = 0;
         let counterAdsToday = 0;
-        let totalAdsCount = 0; // Added cumulative total to resolve daily-cap milestone issues
         let lastLoggedCheckIn = "";
         let transactionHistoryList = [];
         let storedUserNickname = "";
@@ -1210,20 +1226,25 @@
 
         let adPlaybackTimerReference = null;
         let countdownTimerReference;
-        let verificationPollInterval = null;
         let pendingUserInstance = null;
         let autoLoginModeActive = false;
 
+        // Tracking separate references for each captcha box to stop the spam loop
         let loginWidgetId = null;
         let signupWidgetId = null;
         let terminalWidgetId = null;
         const siteKeyStr = "6LfAl0ItAAAAALWGLfnOVj47bj8Rlj-iteZ19qys";
 
-        window.onload = function() {
+        // This function will be called automatically by reCAPTCHA once the script is ready
+        window.onloadCallback = function() {
             if (typeof grecaptcha !== 'undefined') {
                 loginWidgetId = grecaptcha.render('captcha-login', { 'sitekey': siteKeyStr, 'theme': 'dark' });
                 signupWidgetId = grecaptcha.render('captcha-signup', { 'sitekey': siteKeyStr, 'theme': 'dark' });
-                terminalWidgetId = grecaptcha.render('captcha-terminal', { 'sitekey': siteKeyStr, 'theme': 'dark' });
+                
+                // Ensure this ID exists in your HTML before rendering
+                if(document.getElementById('captcha-terminal')) {
+                    terminalWidgetId = grecaptcha.render('captcha-terminal', { 'sitekey': siteKeyStr, 'theme': 'dark' });
+                }
             }
         };
 
@@ -1296,13 +1317,10 @@
                 if (!user.emailVerified) {
                     pendingUserInstance = user;
                     toggleAuthForms('verify');
-                    startEmailVerificationAutoWatcher();
+                    sendVerificationAndRunTimer();
                     return;
                 }
                 
-                // Clear watcher loops if verified execution captures user core cleanly
-                if(verificationPollInterval) clearInterval(verificationPollInterval);
-
                 const userRef = database.ref('users/' + user.uid);
                 userRef.once('value', (snapshot) => {
                     const data = snapshot.val();
@@ -1314,7 +1332,6 @@
                         transactionHistoryList = data.txHistory || [];
                         storedUserNickname = data.nickname || "";
                         finalizedActiveAvatarUrl = data.avatarUrl || systemicAvatarsList[0];
-                        totalAdsCount = data.totalAdsCount || 0;
                         
                         myReferralCode = data.referralCode || user.uid.substring(0, 7).toUpperCase();
                         invitedMilestoneCount = data.invitedMilestoneCount || 0;
@@ -1339,7 +1356,6 @@
                             email: user.email,
                             coins: 100,
                             adWatchData: { lastWatchedDate: todayStr, count: 0 },
-                            totalAdsCount: 0,
                             lastCheckInDate: "",
                             txHistory: [],
                             nickname: "",
@@ -1353,7 +1369,6 @@
                             myReferralCode = createdCode;
                             parentReferrerCode = typedReferrer;
                             counterAdsToday = 0;
-                            totalAdsCount = 0;
                             document.getElementById('viewLogin').style.display = 'block';
                             document.getElementById('appMainDock').style.display = 'none';
                             toggleAuthForms('identity');
@@ -1463,9 +1478,11 @@
             return false;
         }
 
+        // Modified Core Authentication Handler
         function handleManualEmailAuth() {
             if(processAntiCheatLockout()) return;
             
+            // Get token explicitly using the correct Widget ID link
             let checkCaptchaToken = '';
             if (loginWidgetId !== null) {
                 checkCaptchaToken = grecaptcha.getResponse(loginWidgetId);
@@ -1476,6 +1493,7 @@
                 return;
             }
 
+            // Safe fallback clean handling for Auto Login Mode configurations
             if (autoLoginModeActive) {
                 if (loginWidgetId !== null) grecaptcha.reset(loginWidgetId);
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -1519,6 +1537,7 @@
                 });
         }
 
+        // Updated Secure Registration Form Submission Node
         function handleManualEmailRegistration() {
             if(processAntiCheatLockout()) return;
 
@@ -1555,35 +1574,6 @@
                 });
         }
 
-        function startEmailVerificationAutoWatcher() {
-            if (verificationPollInterval) clearInterval(verificationPollInterval);
-            verificationPollInterval = setInterval(() => {
-                if (auth.currentUser) {
-                    auth.currentUser.reload().then(() => {
-                        if (auth.currentUser.emailVerified) {
-                            clearInterval(verificationPollInterval);
-                            window.location.reload();
-                        }
-                    });
-                }
-            }, 3500);
-        }
-
-        function checkEmailVerificationStatus() {
-            if(processAntiCheatLockout()) return;
-            if (auth.currentUser) {
-                auth.currentUser.reload().then(() => {
-                    if (auth.currentUser.emailVerified) {
-                        if (verificationPollInterval) clearInterval(verificationPollInterval);
-                        alert("Security Verification Active! Access Granted.");
-                        window.location.reload();
-                    } else {
-                        alert("Activation handshake missing. Please click the link in your email inbox.");
-                    }
-                }).catch(err => alert("Verification Check Error: " + err.message));
-            }
-        }
-
         function sendVerificationAndRunTimer() {
             if (!pendingUserInstance) return;
 
@@ -1613,7 +1603,6 @@
         }
 
         function cancelVerificationFlow() {
-            if (verificationPollInterval) clearInterval(verificationPollInterval);
             clearInterval(countdownTimerReference);
             auth.signOut();
         }
@@ -1647,7 +1636,6 @@
 
         function performAppLogout() {
             localStorage.removeItem('fire_rewards_keep_signed');
-            if (verificationPollInterval) clearInterval(verificationPollInterval);
             auth.signOut().then(() => {
                 alert("Session disconnected safely.");
                 window.location.reload();
@@ -1711,7 +1699,6 @@
                     lastLoggedCheckIn = data.lastCheckInDate || "";
                     transactionHistoryList = data.txHistory || [];
                     finalizedActiveAvatarUrl = data.avatarUrl || systemicAvatarsList[0];
-                    totalAdsCount = data.totalAdsCount || 0;
                     
                     myReferralCode = data.referralCode || user.uid.substring(0, 7).toUpperCase();
                     invitedMilestoneCount = data.invitedMilestoneCount || 0;
@@ -1748,7 +1735,6 @@
                 database.ref('users/' + user.uid).update({
                     coins: walletBalance,
                     adWatchData: { lastWatchedDate: todayStr, count: counterAdsToday },
-                    totalAdsCount: totalAdsCount,
                     lastCheckInDate: lastLoggedCheckIn,
                     txHistory: transactionHistoryList,
                     avatarUrl: finalizedActiveAvatarUrl,
@@ -1761,8 +1747,7 @@
         function processReferrerMilestoneEvaluation(myUid, alreadyClaimed) {
             if (alreadyClaimed || parentReferrerCode === "") return;
             
-            // Evaluates using the total cumulative ads tracked variant safely
-            if (totalAdsCount >= 30 || (transactionHistoryList && transactionHistoryList.length > 0)) { 
+            if (counterAdsToday >= 30 || (transactionHistoryList && transactionHistoryList.length > 0)) { 
                 database.ref('users').once('value', (snapshot) => {
                     const allUsers = snapshot.val();
                     for (let userId in allUsers) {
@@ -1772,7 +1757,7 @@
                             
                             database.ref('users/' + userId).update({
                                 coins: parentCurrentCoins + 10,
-                                invitedMilestoneCount: parentCurrentCount + 1
+                                invitedMilestoneCount: parentCurrentCount + 15
                             });
                             
                             database.ref('users/' + myUid).update({ adMilestoneClaimed: true });
@@ -1902,6 +1887,7 @@
             }
         }
 
+        // --- ENHANCED: PREPARED FOR REAL ADMOB SDK CALLS ---
         function runStandardVideoAd() {
             if(processAntiCheatLockout()) return;
             const todayStr = new Date().toISOString().split('T')[0];
@@ -1910,12 +1896,11 @@
                 return; 
             }
             
+            // [AdMob Integration Ready Placeholder]
+            // If wrapping your web code with Capacitor/Cordova, call your native AdMob plugin here 
+            // instead of opening the mock UI modal below.
+            // Example: AdMob.showRewardVideoAd().then(() => rewardUser());
             console.log("Triggering Video Server Hook...");
-
-            // Native Integration Web-Bridges (Capacitor / Cordova AdMob Plugins) hook cleanly here
-            if (window.AdMob) {
-                // AdMob.showRewardVideoAd().then(() => { ... });
-            }
 
             let isAdInventoryAvailable = Math.random() > 0.15;
             if (!isAdInventoryAvailable) {
@@ -1923,6 +1908,7 @@
                 return;
             }
             
+            // Manual Fallback Mock UI for Testing Environment
             openModal('modalAdPlayer');
             let timeRemaining = 15;
             let clockDisplay = document.getElementById('adWindowCountdownClock');
@@ -1935,7 +1921,6 @@
                     clearInterval(adPlaybackTimerReference);
                     closeModal('modalAdPlayer');
                     counterAdsToday++;
-                    totalAdsCount++;
                     walletBalance += 1;
                     syncDataToFirebase();
                     alert("Ad Stream Checked Out: +1 Coin added successfully!");
@@ -2039,9 +2024,17 @@
         }
 
         function toggleAppThemeStyle() {
-            let choiceValue = document.getElementById('themeToggle').value;
+            let choiceValue = document.getElementById("themeToggle").value;
             if(choiceValue === 'light') document.body.classList.add('light-theme');
             else document.body.classList.remove('light-theme');
+        }
+
+        function changeLanguage() {
+            let selectedLang = document.getElementById("languageSelect").value;
+            // In a real application, you would load language-specific content here.
+            // For this example, we'll just log the selection.
+            console.log("Language changed to: " + selectedLang);
+            alert("Language changed to: " + selectedLang + ". (Note: Full localization requires more extensive code changes.)");
         }
 
         UX_RESIZE_VIEW = () => {
@@ -2140,10 +2133,7 @@
                     if(diamondX > basketX - 10 && diamondX < basketX + 45) {
                         catcherScore++; diamondSpeed += 0.12; diamondY = 0; diamondX = Math.random() * 270;
                         if(catcherScore % 10 === 0 && counterAdsToday < SYSTEM_DAILY_CAP && navigator.onLine) {
-                            counterAdsToday++;
-                            totalAdsCount++;
-                            walletBalance += 1; 
-                            syncDataToFirebase();
+                            counterAdsToday++; walletBalance += 1; syncDataToFirebase();
                         }
                     }
                 }
